@@ -1,0 +1,1205 @@
+/* =========================================================
+   CHECKLIST KARYAWAN
+   PT. Ardend Adhikara Pandita
+   ========================================================= */
+
+
+/* ================= RESET ================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f9fd;
+    color: #182b42;
+    min-height: 100vh;
+}
+
+
+/* ================= APP LAYOUT ================= */
+
+.app-layout {
+    min-height: 100vh;
+}
+
+
+/* ================= SIDEBAR ================= */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 195px;
+    height: 100vh;
+
+    background: #092844;
+    color: #ffffff;
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 1000;
+}
+
+
+/* ================= SIDEBAR BRAND ================= */
+
+.sidebar-brand {
+    height: 88px;
+
+    padding: 20px 18px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-brand img {
+    width: 40px;
+    height: 40px;
+
+    object-fit: contain;
+
+    flex-shrink: 0;
+}
+
+.sidebar-brand > div {
+    display: flex;
+    flex-direction: column;
+
+    line-height: 1.2;
+}
+
+.sidebar-brand strong {
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #ffffff;
+}
+
+.sidebar-brand small {
+    margin-top: 3px;
+
+    font-size: 11px;
+
+    color: #a9bfd3;
+}
+
+
+/* ================= SIDEBAR MENU ================= */
+
+.sidebar-menu {
+    padding: 18px 12px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.sidebar-menu a {
+    min-height: 44px;
+
+    padding: 0 15px;
+
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+
+    color: #b8cadb;
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.sidebar-menu a:hover {
+    background: rgba(255, 255, 255, 0.07);
+
+    color: #ffffff;
+}
+
+.sidebar-menu a.active {
+    background: #087df5;
+
+    color: #ffffff;
+
+    font-weight: 600;
+}
+
+
+/* ================= SIDEBAR FOOTER ================= */
+
+.sidebar-footer {
+    margin-top: auto;
+
+    padding: 18px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-footer small {
+    display: block;
+
+    color: #7892a9;
+
+    font-size: 10px;
+
+    line-height: 1.5;
+}
+
+
+/* ================= MAIN ================= */
+
+.main-content {
+    min-height: 100vh;
+
+    margin-left: 195px;
+}
+
+
+/* ================= TOPBAR ================= */
+
+.topbar {
+    position: sticky;
+    top: 0;
+
+    min-height: 74px;
+
+    padding: 0 30px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e8eef5;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    z-index: 100;
+}
+
+
+/* ================= PAGE HEADING ================= */
+
+.page-heading {
+    display: flex;
+    flex-direction: column;
+
+    line-height: 1.25;
+}
+
+.page-heading h1 {
+    font-size: 17px;
+
+    font-weight: 700;
+
+    color: #092844;
+}
+
+.page-heading p {
+    margin-top: 4px;
+
+    font-size: 11px;
+
+    color: #718096;
+}
+
+
+/* ================= TOPBAR PROFILE ================= */
+
+.topbar-profile {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.profile-text {
+    display: flex;
+    flex-direction: column;
+
+    text-align: right;
+
+    line-height: 1.3;
+}
+
+.profile-text strong {
+    font-size: 12px;
+
+    color: #182b42;
+}
+
+.profile-text small {
+    margin-top: 2px;
+
+    font-size: 10px;
+
+    color: #718096;
+}
+
+
+/* ================= LOGOUT ================= */
+
+.logout-btn {
+    padding: 8px 13px;
+
+    border: 1px solid #e3eaf1;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #718096;
+
+    font-family: inherit;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.logout-btn:hover {
+    border-color: #f05252;
+
+    color: #f05252;
+
+    background: #fff6f6;
+}
+
+
+/* ================= PAGE CONTENT ================= */
+
+.page-content {
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding: 30px;
+}
+
+
+/* ================= MESSAGE ================= */
+
+.message-box {
+    display: none;
+
+    margin-bottom: 18px;
+
+    padding: 13px 16px;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.message-box:not(:empty) {
+    display: block;
+}
+
+.message-box.success {
+    background: #edfbf5;
+
+    border: 1px solid #ccefe0;
+
+    color: #168b58;
+}
+
+.message-box.error {
+    background: #fff1f1;
+
+    border: 1px solid #f4d1d1;
+
+    color: #c43d3d;
+}
+
+.message-box.warning {
+    background: #fff8e9;
+
+    border: 1px solid #f7e2ae;
+
+    color: #a76d00;
+}
+
+
+/* ================= WELCOME PANEL ================= */
+
+.welcome-panel {
+    margin-bottom: 20px;
+
+    padding: 22px 24px;
+
+    background: linear-gradient(
+        135deg,
+        #eaf4ff 0%,
+        #f7fbff 100%
+    );
+
+    border: 1px solid #dcecff;
+
+    border-radius: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.welcome-panel p:first-child {
+    margin-bottom: 5px;
+
+    color: #087df5;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.3px;
+}
+
+.welcome-panel h2 {
+    font-size: 22px;
+
+    color: #092844;
+}
+
+.welcome-panel p:last-child {
+    margin-top: 7px;
+
+    color: #718096;
+
+    font-size: 12px;
+}
+
+
+/* ================= REFRESH BUTTON ================= */
+
+#refreshChecklistBtn {
+    padding: 10px 15px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #087df5;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition: 0.2s ease;
+}
+
+#refreshChecklistBtn:hover {
+    background: #066dd7;
+
+    box-shadow: 0 5px 14px rgba(8, 125, 245, 0.2);
+
+    transform: translateY(-1px);
+}
+
+
+/* ================= SUMMARY GRID ================= */
+
+.summary-grid {
+    margin-bottom: 20px;
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 14px;
+}
+
+.summary-card {
+    padding: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #e8eef5;
+
+    border-radius: 14px;
+
+    box-shadow: 0 4px 18px rgba(9, 40, 68, 0.04);
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: space-between;
+
+    min-height: 100px;
+}
+
+.summary-card span {
+    color: #718096;
+
+    font-size: 11px;
+
+    font-weight: 500;
+}
+
+.summary-card strong {
+    margin-top: 12px;
+
+    color: #092844;
+
+    font-size: 25px;
+
+    line-height: 1;
+}
+
+.summary-card:nth-child(2) strong {
+    color: #19c77a;
+}
+
+.summary-card:nth-child(3) strong {
+    color: #ffae25;
+}
+
+.summary-card:nth-child(4) strong {
+    color: #087df5;
+}
+
+
+/* ================= DATA CARD ================= */
+
+.data-card {
+    margin-bottom: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e8eef5;
+
+    border-radius: 16px;
+
+    box-shadow: 0 4px 18px rgba(9, 40, 68, 0.045);
+
+    overflow: hidden;
+}
+
+
+/* ================= SECTION HEADING ================= */
+
+.section-heading {
+    padding: 20px 22px;
+
+    border-bottom: 1px solid #edf2f7;
+}
+
+.section-heading h2 {
+    font-size: 16px;
+
+    color: #092844;
+}
+
+.section-heading p {
+    margin-top: 5px;
+
+    font-size: 11px;
+
+    color: #718096;
+}
+
+
+/* ================= CHECKLIST CONTAINER ================= */
+
+.checklist-container {
+    padding: 18px 22px;
+}
+
+.loading-state {
+    padding: 30px 15px;
+
+    text-align: center;
+
+    color: #8a9aac;
+
+    font-size: 12px;
+}
+
+
+/* ================= CHECKLIST ITEM ================= */
+
+.checklist-item {
+    margin-bottom: 10px;
+
+    padding: 15px 16px;
+
+    background: #f8fbfe;
+
+    border: 1px solid #e7eef5;
+
+    border-radius: 11px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.checklist-item:last-child {
+    margin-bottom: 0;
+}
+
+.checklist-item:hover {
+    background: #f4f9fd;
+
+    border-color: #d9e8f5;
+}
+
+.checklist-item.completed {
+    background: #f0fbf6;
+
+    border-color: #cfeee0;
+}
+
+
+/* ================= CHECKBOX ================= */
+
+.checklist-item input[type="checkbox"] {
+    width: 19px;
+    height: 19px;
+
+    flex-shrink: 0;
+
+    accent-color: #087df5;
+
+    cursor: pointer;
+}
+
+.checklist-item.completed input[type="checkbox"] {
+    accent-color: #19c77a;
+}
+
+
+/* ================= CHECKLIST TEXT ================= */
+
+.checklist-item label {
+    flex: 1;
+
+    color: #182b42;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    cursor: pointer;
+}
+
+.checklist-item.completed label {
+    color: #5e776c;
+
+    text-decoration: line-through;
+}
+
+
+/* ================= CHECKLIST STATUS ================= */
+
+.checklist-item .status {
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    background: #fff5df;
+
+    color: #c98200;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.checklist-item.completed .status {
+    background: #e9faf2;
+
+    color: #19a96a;
+}
+
+
+/* ================= CHECKLIST FOOTER ================= */
+
+.checklist-footer {
+    padding: 16px 22px;
+
+    border-top: 1px solid #edf2f7;
+
+    display: flex;
+
+    justify-content: flex-end;
+}
+
+
+/* ================= SAVE BUTTON ================= */
+
+#saveChecklistBtn {
+    min-width: 150px;
+
+    padding: 11px 17px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #19c77a;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+#saveChecklistBtn:hover:not(:disabled) {
+    background: #15b66d;
+
+    box-shadow: 0 5px 14px rgba(25, 199, 122, 0.2);
+
+    transform: translateY(-1px);
+}
+
+#saveChecklistBtn:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+
+/* ================= FILTER ================= */
+
+.filter-controls {
+    padding: 16px 22px;
+
+    background: #fbfdff;
+
+    border-bottom: 1px solid #edf2f7;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.filter-controls label {
+    color: #718096;
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+.filter-controls input[type="date"] {
+    padding: 9px 11px;
+
+    border: 1px solid #dfe8f0;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #182b42;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    outline: none;
+}
+
+.filter-controls input[type="date"]:focus {
+    border-color: #087df5;
+}
+
+#clearChecklistFilter {
+    padding: 9px 12px;
+
+    border: 1px solid #dfe8f0;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #718096;
+
+    font-family: inherit;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+#clearChecklistFilter:hover {
+    border-color: #087df5;
+
+    color: #087df5;
+
+    background: #eaf4ff;
+}
+
+
+/* ================= TABLE ================= */
+
+.table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    padding: 0 22px;
+}
+
+.table-wrapper table {
+    width: 100%;
+
+    min-width: 650px;
+
+    border-collapse: collapse;
+}
+
+.table-wrapper th {
+    padding: 12px 13px;
+
+    background: #f7fafd;
+
+    border-bottom: 1px solid #e8eef5;
+
+    color: #718096;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+.table-wrapper td {
+    padding: 13px;
+
+    border-bottom: 1px solid #edf2f7;
+
+    color: #182b42;
+
+    font-size: 11px;
+
+    vertical-align: middle;
+}
+
+.table-wrapper tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-wrapper tbody tr:hover {
+    background: #fbfdff;
+}
+
+
+/* ================= CHECKLIST COUNT ================= */
+
+#checklistCount {
+    padding: 12px 22px 18px;
+
+    color: #8a9aac;
+
+    font-size: 10px;
+
+    text-align: right;
+}
+
+
+/* ================= MOBILE BOTTOM NAV ================= */
+
+.mobile-bottom-nav {
+    display: none;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .sidebar {
+        width: 185px;
+    }
+
+    .main-content {
+        margin-left: 185px;
+    }
+
+    .page-content {
+        padding: 25px;
+    }
+
+    .topbar {
+        padding: 0 25px;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+    body {
+        padding-bottom: 67px;
+    }
+
+
+    /* SIDEBAR */
+
+    .sidebar {
+        width: 250px;
+
+        transform: translateX(-100%);
+
+        transition: transform 0.25s ease;
+
+        box-shadow: 8px 0 25px rgba(9, 40, 68, 0.15);
+    }
+
+    .sidebar.active,
+    .sidebar.open,
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+
+    /* MAIN */
+
+    .main-content {
+        margin-left: 0;
+    }
+
+
+    /* TOPBAR */
+
+    .topbar {
+        min-height: 64px;
+
+        padding: 12px 15px;
+    }
+
+    .page-heading h1 {
+        font-size: 15px;
+    }
+
+    .page-heading p {
+        display: none;
+    }
+
+    .topbar-profile {
+        gap: 0;
+    }
+
+    .profile-text {
+        display: none;
+    }
+
+    .logout-btn {
+        display: none;
+    }
+
+
+    /* CONTENT */
+
+    .page-content {
+        padding: 20px 15px 25px;
+    }
+
+
+    /* WELCOME */
+
+    .welcome-panel {
+        padding: 18px;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 15px;
+    }
+
+    .welcome-panel h2 {
+        font-size: 20px;
+    }
+
+    #refreshChecklistBtn {
+        width: 100%;
+    }
+
+
+    /* SUMMARY */
+
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+
+        gap: 10px;
+    }
+
+    .summary-card {
+        min-height: 90px;
+
+        padding: 15px;
+    }
+
+    .summary-card strong {
+        font-size: 22px;
+    }
+
+
+    /* DATA CARD */
+
+    .data-card {
+        border-radius: 14px;
+
+        margin-bottom: 16px;
+    }
+
+    .section-heading {
+        padding: 17px 18px;
+    }
+
+    .section-heading h2 {
+        font-size: 15px;
+    }
+
+
+    /* CHECKLIST */
+
+    .checklist-container {
+        padding: 15px 18px;
+    }
+
+    .checklist-item {
+        padding: 13px;
+
+        align-items: flex-start;
+    }
+
+    .checklist-item input[type="checkbox"] {
+        margin-top: 2px;
+    }
+
+    .checklist-item label {
+        font-size: 11px;
+    }
+
+    .checklist-item .status {
+        font-size: 8px;
+    }
+
+    .checklist-footer {
+        padding: 14px 18px;
+    }
+
+    #saveChecklistBtn {
+        width: 100%;
+    }
+
+
+    /* FILTER */
+
+    .filter-controls {
+        padding: 14px 18px;
+
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .filter-controls input[type="date"],
+    #clearChecklistFilter {
+        width: 100%;
+    }
+
+
+    /* TABLE */
+
+    .table-wrapper {
+        padding: 0 18px;
+    }
+
+    .table-wrapper table {
+        min-width: 600px;
+    }
+
+    #checklistCount {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+
+    /* BOTTOM NAV */
+
+    .mobile-bottom-nav {
+        position: fixed;
+
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        height: 67px;
+
+        padding: 7px 5px;
+
+        background: #ffffff;
+
+        border-top: 1px solid #e8eef5;
+
+        box-shadow: 0 -4px 18px rgba(9, 40, 68, 0.07);
+
+        display: grid;
+
+        grid-template-columns: repeat(5, 1fr);
+
+        z-index: 1100;
+    }
+
+    .mobile-bottom-nav a {
+        min-width: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        text-align: center;
+
+        color: #718096;
+
+        text-decoration: none;
+
+        font-size: 9px;
+
+        font-weight: 500;
+
+        border-radius: 8px;
+
+        transition: 0.2s ease;
+    }
+
+    .mobile-bottom-nav a.active {
+        background: #eaf4ff;
+
+        color: #087df5;
+
+        font-weight: 600;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .page-content {
+        padding: 17px 12px 22px;
+    }
+
+    .topbar {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .welcome-panel {
+        padding: 16px;
+    }
+
+    .summary-card {
+        padding: 13px;
+    }
+
+    .summary-card span {
+        font-size: 10px;
+    }
+
+    .summary-card strong {
+        font-size: 20px;
+    }
+
+    .section-heading {
+        padding: 15px;
+    }
+
+    .checklist-container {
+        padding: 13px 15px;
+    }
+
+    .checklist-footer {
+        padding: 13px 15px;
+    }
+
+    .table-wrapper {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    #checklistCount {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+}

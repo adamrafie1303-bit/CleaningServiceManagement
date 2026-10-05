@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan | Cleaning Service Management</title>
+  <link rel="stylesheet" href="laporan.css">
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img
+          src="../ASSETS/logo-ardend.png"
+          alt="Logo PT. Ardend Adhikara Pandita"
+          class="sidebar-logo"
+        >
+        <div class="brand-text">
+          <strong>Cleaning Service</strong>
+          <span>Management</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="dashboard.html" class="menu-link">
+          <span>Dashboard</span>
+        </a>
+
+        <a href="karyawan.html" class="menu-link">
+          <span>Karyawan</span>
+        </a>
+
+        <a href="site.html" class="menu-link">
+          <span>Site</span>
+        </a>
+
+        <a href="absensi.html" class="menu-link">
+          <span>Absensi</span>
+        </a>
+
+        <a href="checklist.html" class="menu-link">
+          <span>Checklist</span>
+        </a>
+
+        <a href="laporan.html" class="menu-link active">
+          <span>Laporan</span>
+        </a>
+
+        <a href="pengaturan.html" class="menu-link">
+          <span>Pengaturan</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <small>PT. Ardend Adhikara Pandita</small>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- HEADER -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>Laporan Pekerjaan</h1>
+          <p>Monitoring laporan pekerjaan kebersihan seluruh site</p>
+        </div>
+
+        <div class="topbar-profile">
+          <div class="profile-info">
+            <strong data-user-username>Admin</strong>
+            <span data-user-role>Administrator</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT -->
+      <section class="page-content">
+
+        <div class="page-heading">
+          <div>
+            <h2>Data Laporan</h2>
+            <p>Lihat laporan pekerjaan, catatan, dan dokumentasi karyawan.</p>
+          </div>
+
+          <button type="button" id="exportReportBtn">
+            Ekspor CSV
+          </button>
+        </div>
+
+        <!-- FILTER -->
+        <section class="filter-card">
+          <h3>Filter Laporan</h3>
+
+          <div class="filter-grid">
+            <div class="form-group">
+              <label for="filterStartDate">Dari Tanggal</label>
+              <input type="date" id="filterStartDate">
+            </div>
+
+            <div class="form-group">
+              <label for="filterEndDate">Sampai Tanggal</label>
+              <input type="date" id="filterEndDate">
+            </div>
+
+            <div class="form-group">
+              <label for="filterSite">Site</label>
+              <select id="filterSite">
+                <option value="">Semua Site</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="filterEmployee">Karyawan</label>
+              <select id="filterEmployee">
+                <option value="">Semua Karyawan</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="filterStatus">Status</label>
+              <select id="filterStatus">
+                <option value="">Semua Status</option>
+                <option value="MENUNGGU">Menunggu</option>
+                <option value="DITINJAU">Ditinjau</option>
+                <option value="DISETUJUI">Disetujui</option>
+                <option value="DITOLAK">Ditolak</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button type="button" id="applyReportFilterBtn">
+              Terapkan Filter
+            </button>
+
+            <button type="button" id="resetReportFilterBtn">
+              Reset
+            </button>
+          </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <section class="summary-grid">
+          <article class="summary-card">
+            <span>Total Laporan</span>
+            <strong id="totalReports">0</strong>
+          </article>
+
+          <article class="summary-card">
+            <span>Menunggu</span>
+            <strong id="pendingReports">0</strong>
+          </article>
+
+          <article class="summary-card">
+            <span>Ditinjau</span>
+            <strong id="reviewedReports">0</strong>
+          </article>
+
+          <article class="summary-card">
+            <span>Disetujui</span>
+            <strong id="approvedReports">0</strong>
+          </article>
+        </section>
+
+        <!-- REPORT TABLE -->
+        <section class="table-card">
+          <div class="section-heading">
+            <div>
+              <h3>Riwayat Laporan</h3>
+              <p>Daftar laporan pekerjaan sesuai filter yang dipilih.</p>
+            </div>
+
+            <span id="reportCount">0 data</span>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Tanggal</th>
+                  <th>Karyawan</th>
+                  <th>Site</th>
+                  <th>Judul Laporan</th>
+                  <th>Status</th>
+                  <th>Dokumentasi</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody id="reportTableBody">
+                <tr>
+                  <td colspan="8">Memuat data laporan...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal" id="reportDetailModal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Detail Laporan</h2>
+
+        <button
+          type="button"
+          id="closeReportModal"
+          aria-label="Tutup"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div id="reportDetailContent">
+        <!-- Detail laporan dimuat melalui JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <nav class="mobile-nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="karyawan.html">Karyawan</a>
+    <a href="site.html">Site</a>
+    <a href="absensi.html">Absensi</a>
+    <a href="laporan.html">Laporan</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="../dashboard-auth.js"></script>
+  <script src="laporan.js"></script>
+</body>
+</html>

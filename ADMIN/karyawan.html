@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karyawan | Cleaning Service Management</title>
+  <link rel="stylesheet" href="karyawan.css">
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img
+          src="../ASSETS/logo-ardend.png"
+          alt="Logo PT. Ardend Adhikara Pandita"
+          class="sidebar-logo"
+        >
+        <div class="brand-text">
+          <strong>Cleaning Service</strong>
+          <small>Management</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="dashboard.html" class="menu-link">
+          <span>Dashboard</span>
+        </a>
+
+        <a href="karyawan.html" class="menu-link active">
+          <span>Karyawan</span>
+        </a>
+
+        <a href="site.html" class="menu-link">
+          <span>Site</span>
+        </a>
+
+        <a href="absensi.html" class="menu-link">
+          <span>Absensi</span>
+        </a>
+
+        <a href="checklist.html" class="menu-link">
+          <span>Checklist</span>
+        </a>
+
+        <a href="laporan.html" class="menu-link">
+          <span>Laporan</span>
+        </a>
+
+        <a href="pengaturan.html" class="menu-link">
+          <span>Pengaturan</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <small>PT. Ardend Adhikara Pandita</small>
+      </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- HEADER -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>Data Karyawan</h1>
+          <p>Kelola dan pantau informasi karyawan cleaning service</p>
+        </div>
+
+        <div class="topbar-profile">
+          <div class="profile-info">
+            <strong data-user-username>Admin</strong>
+            <span data-user-role>Administrator</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT -->
+      <section class="page-content">
+
+        <div class="page-heading">
+          <div>
+            <h2>Daftar Karyawan</h2>
+            <p>Informasi karyawan dan penempatan site.</p>
+          </div>
+
+          <button type="button" id="exportEmployeesBtn">
+            Ekspor CSV
+          </button>
+        </div>
+
+        <!-- SUMMARY -->
+        <section class="summary-grid">
+          <article class="summary-card">
+            <span>Total Karyawan</span>
+            <strong id="totalEmployees">0</strong>
+          </article>
+
+          <article class="summary-card">
+            <span>Karyawan Aktif</span>
+            <strong id="activeEmployees">0</strong>
+          </article>
+
+          <article class="summary-card">
+            <span>Karyawan Nonaktif</span>
+            <strong id="inactiveEmployees">0</strong>
+          </article>
+
+          <article class="summary-card">
+            <span>Total Site</span>
+            <strong id="totalEmployeeSites">0</strong>
+          </article>
+        </section>
+
+        <!-- FILTER -->
+        <section class="filter-card">
+          <h3>Pencarian dan Filter</h3>
+
+          <div class="filter-grid">
+            <div class="form-group">
+              <label for="searchEmployee">Cari Karyawan</label>
+              <input
+                type="search"
+                id="searchEmployee"
+                placeholder="Cari ID, nama, atau nomor HP..."
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="filterEmployeeSite">Site</label>
+              <select id="filterEmployeeSite">
+                <option value="">Semua Site</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="filterEmployeeStatus">Status</label>
+              <select id="filterEmployeeStatus">
+                <option value="">Semua Status</option>
+                <option value="AKTIF">Aktif</option>
+                <option value="NONAKTIF">Nonaktif</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button type="button" id="applyEmployeeFilterBtn">
+              Terapkan Filter
+            </button>
+
+            <button type="button" id="resetEmployeeFilterBtn">
+              Reset
+            </button>
+          </div>
+        </section>
+
+        <!-- EMPLOYEE TABLE -->
+        <section class="table-card">
+          <div class="section-heading">
+            <div>
+              <h3>Daftar Karyawan</h3>
+              <p>Data karyawan yang terdaftar pada sistem.</p>
+            </div>
+
+            <span id="employeeCount">0 karyawan</span>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>ID Karyawan</th>
+                  <th>Nama</th>
+                  <th>No. HP</th>
+                  <th>Jabatan</th>
+                  <th>Site</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody id="employeeTableBody">
+                <tr>
+                  <td colspan="8">Memuat data karyawan...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </section>
+    </main>
+  </div>
+
+
+
+  <!-- MOBILE NAV -->
+  <nav class="mobile-nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="karyawan.html">Karyawan</a>
+    <a href="site.html">Site</a>
+    <a href="absensi.html">Absensi</a>
+    <a href="laporan.html">Laporan</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="../dashboard-auth.js"></script>
+  <script src="karyawan.js"></script>
+</body>
+</html>

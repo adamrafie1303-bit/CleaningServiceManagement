@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Site | Cleaning Service Management</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <div class="app-layout">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../ASSETS/logo-ardend.png" alt="Logo PT. Ardend Adhikara Pandita">
+        <div>
+          <strong>Cleaning Service</strong>
+          <small>Management</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="karyawan.html">Karyawan</a>
+        <a href="site.html" class="active">Site</a>
+        <a href="absensi.html">Absensi</a>
+        <a href="checklist.html">Checklist</a>
+        <a href="laporan.html">Laporan</a>
+        <a href="pengaturan.html">Pengaturan</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <small>PT. Ardend Adhikara Pandita</small>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="page-heading">
+          <h1>Data Site</h1>
+          <p>Kelola dan pantau lokasi kerja karyawan.</p>
+        </div>
+
+        <div class="topbar-profile">
+          <div class="profile-text">
+            <strong data-user-username>Admin</strong>
+            <small data-user-role>Administrator</small>
+      </header>
+
+      <section class="page-content">
+
+        <div class="page-intro">
+          <div>
+            <h2>Daftar Site</h2>
+            <p>Informasi lokasi kerja, koordinat, radius absensi, dan jadwal.</p>
+          </div>
+          <button type="button" id="refreshSitesBtn">Muat Ulang</button>
+        </div>
+
+        <div id="siteMessage" class="message-box" role="status" aria-live="polite"></div>
+
+        <section class="summary-grid">
+          <article class="summary-card">
+            <span>Total Site</span>
+            <strong id="totalSites">0</strong>
+          </article>
+          <article class="summary-card">
+            <span>Site Aktif</span>
+            <strong id="activeSites">0</strong>
+          </article>
+          <article class="summary-card">
+            <span>Site Nonaktif</span>
+            <strong id="inactiveSites">0</strong>
+          </article>
+        </section>
+
+        <section class="data-card">
+          <div class="data-toolbar">
+            <div>
+              <h3>Semua Lokasi</h3>
+              <p id="siteCount">0 site ditemukan</p>
+            </div>
+
+            <div class="filter-controls">
+              <label for="searchSite">Cari site</label>
+              <input
+                type="search"
+                id="searchSite"
+                placeholder="Nama, ID, atau alamat..."
+                autocomplete="off"
+              >
+
+              <label for="filterSiteStatus">Status</label>
+              <select id="filterSiteStatus">
+                <option value="">Semua Status</option>
+                <option value="AKTIF">Aktif</option>
+                <option value="NONAKTIF">Nonaktif</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID Site</th>
+                  <th>Nama Site</th>
+                  <th>Alamat</th>
+                  <th>Radius Absensi</th>
+                  <th>Jam Masuk</th>
+                  <th>Jam Pulang</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="siteTableBody">
+                <tr>
+                  <td colspan="8">Memuat data site...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal detail site -->
+  <div
+    id="siteDetailModal"
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="siteModalTitle"
+    hidden
+  >
+    <div class="modal-backdrop" id="siteModalBackdrop"></div>
+
+    <section class="modal-panel">
+      <div class="modal-header">
+        <div>
+          <h2 id="siteModalTitle">Detail Site</h2>
+          <p>Informasi lengkap lokasi kerja.</p>
+        </div>
+        <button type="button" id="closeSiteModal" aria-label="Tutup detail">×</button>
+      </div>
+
+      <div id="siteDetailContent" class="modal-content"></div>
+    </section>
+  </div>
+
+  <nav class="mobile-bottom-nav" aria-label="Navigasi admin">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="karyawan.html">Karyawan</a>
+    <a href="site.html" class="active">Site</a>
+    <a href="absensi.html">Absensi</a>
+    <a href="laporan.html">Laporan</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="../dashboard-auth.js"></script>
+  <script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Absensi | Cleaning Service Management</title>
+
+    <link
+        rel="stylesheet"
+        href="absensi.css"
+    >
+
+</head>
+
+
+<body>
+
+
+  <div class="app-layout">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../ASSETS/logo-ardend.png" alt="Logo PT. Ardend Adhikara Pandita">
+        <div>
+          <strong>Cleaning Service</strong>
+          <small>Management</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="karyawan.html">Karyawan</a>
+        <a href="site.html">Site</a>
+        <a href="absensi.html" class="active">Absensi</a>
+        <a href="checklist.html">Checklist</a>
+        <a href="laporan.html">Laporan</a>
+        <a href="pengaturan.html">Pengaturan</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <small>PT. Ardend Adhikara Pandita</small>
+      </div>
+    </aside>
+
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="main-content">
+
+
+        <!-- HEADER -->
+
+        <header class="top-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="mobile-menu-btn"
+                    id="mobileMenuBtn"
+                    aria-label="Buka menu"
+                >
+                    ☰
+                </button>
+
+
+                <div class="page-title">
+
+                    <span class="page-eyebrow">
+                        ADMIN
+                    </span>
+
+                    <h1>
+                        Data Absensi
+                    </h1>
+
+                    <p>
+                        Pantau dan kelola absensi karyawan.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="header-right">
+
+
+
+                <div class="admin-profile">
+
+
+                    <div class="profile-info">
+
+                        <strong data-user-username>
+                            Admin
+                        </strong>
+
+                        <span data-user-role>
+                            Administrator
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =========================
+             PAGE CONTENT
+        ========================== -->
+
+        <section class="page-content">
+
+
+            <!-- =========================
+                 DATE / FILTER
+            ========================== -->
+
+            <div class="content-card filter-card">
+
+                <div class="filter-header">
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            FILTER ABSENSI
+                        </span>
+
+                        <h2>
+                            Pilih periode dan data
+                        </h2>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="refreshBtn"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+
+                <div class="filter-grid">
+
+
+                    <div class="form-group">
+
+                        <label for="filterTanggal">
+                            Tanggal
+                        </label>
+
+                        <input
+                            type="date"
+                            id="filterTanggal"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="filterKaryawan">
+                            Karyawan
+                        </label>
+
+                        <select
+                            id="filterKaryawan"
+                        >
+
+                            <option value="">
+                                Semua Karyawan
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="filterSite">
+                            Site
+                        </label>
+
+                        <select
+                            id="filterSite"
+                        >
+
+                            <option value="">
+                                Semua Site
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="filterStatus">
+                            Status
+                        </label>
+
+                        <select
+                            id="filterStatus"
+                        >
+
+                            <option value="">
+                                Semua Status
+                            </option>
+
+                            <option value="HADIR">
+                                Hadir
+                            </option>
+
+                            <option value="TERLAMBAT">
+                                Terlambat
+                            </option>
+
+                            <option value="IZIN">
+                                Izin
+                            </option>
+
+                            <option value="SAKIT">
+                                Sakit
+                            </option>
+
+                            <option value="CUTI">
+                                Cuti
+                            </option>
+
+                            <option value="ALPHA">
+                                Alpha
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button
+                            type="button"
+                            class="primary-btn"
+                            id="applyFilterBtn"
+                        >
+                            Terapkan
+                        </button>
+
+                        <button
+                            type="button"
+                            class="secondary-btn"
+                            id="resetFilterBtn"
+                        >
+                            Reset
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================
+                 SUMMARY
+            ========================== -->
+
+            <div class="summary-grid">
+
+
+                <div class="summary-card">
+
+                    <div class="summary-icon">
+                        👥
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Total Absensi
+                        </span>
+
+                        <strong id="totalAbsensi">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Hadir
+                        </span>
+
+                        <strong id="totalHadir">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-icon">
+                        ⏰
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Terlambat
+                        </span>
+
+                        <strong id="totalTerlambat">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="summary-icon">
+                        !
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Tidak Hadir
+                        </span>
+
+                        <strong id="totalTidakHadir">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =========================
+                 TABLE
+            ========================== -->
+
+            <div class="content-card">
+
+
+                <div class="table-header">
+
+                    <div>
+
+                        <span class="section-eyebrow">
+                            RIWAYAT ABSENSI
+                        </span>
+
+                        <h2>
+                            Data Kehadiran
+                        </h2>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="exportBtn"
+                    >
+                        ↓ Export CSV
+                    </button>
+
+                </div>
+
+
+
+                <div class="table-wrapper">
+
+                    <table class="attendance-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Waktu
+                                </th>
+
+                                <th>
+                                    ID Karyawan
+                                </th>
+
+                                <th>
+                                    Nama
+                                </th>
+
+                                <th>
+                                    Site
+                                </th>
+
+                                <th>
+                                    Masuk
+                                </th>
+
+                                <th>
+                                    Pulang
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    GPS
+                                </th>
+
+                                <th>
+                                    Foto
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="attendanceTableBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="9"
+                                    class="loading-cell"
+                                >
+                                    Memuat data absensi...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+
+                <div
+                    id="emptyState"
+                    class="empty-state"
+                    hidden
+                >
+
+                    <div class="empty-icon">
+                        ◷
+                    </div>
+
+                    <h3>
+                        Tidak ada data absensi
+                    </h3>
+
+                    <p>
+                        Belum ada absensi yang sesuai dengan filter.
+                    </p>
+
+                </div>
+
+
+                <div class="table-footer">
+
+                    <span id="tableInfo">
+                        Menampilkan 0 data
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+
+
+    <!-- =========================
+         DETAIL ABSENSI MODAL
+    ========================== -->
+
+    <div
+        class="modal-overlay"
+        id="attendanceModal"
+        hidden
+    >
+
+        <div class="modal">
+
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="modal-eyebrow">
+                        DETAIL ABSENSI
+                    </span>
+
+                    <h2>
+                        Informasi Absensi
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    id="modalCloseBtn"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="detail-grid">
+
+
+                <div class="detail-item">
+
+                    <span>
+                        ID Karyawan
+                    </span>
+
+                    <strong id="detailIdKaryawan">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Nama
+                    </span>
+
+                    <strong id="detailNama">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Site
+                    </span>
+
+                    <strong id="detailSite">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Tanggal
+                    </span>
+
+                    <strong id="detailTanggal">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Jam Masuk
+                    </span>
+
+                    <strong id="detailJamMasuk">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Jam Pulang
+                    </span>
+
+                    <strong id="detailJamPulang">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Status
+                    </span>
+
+                    <strong id="detailStatus">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <span>
+                        Koordinat
+                    </span>
+
+                    <strong id="detailKoordinat">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-item full">
+
+                    <span>
+                        Keterangan
+                    </span>
+
+                    <strong id="detailKeterangan">
+                        -
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    id="detailCloseBtn"
+                >
+                    Tutup
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         MOBILE NAV
+    ========================== -->
+
+    <nav class="mobile-bottom-nav">
+
+
+        <a href="dashboard.html">
+
+         
+
+            <small>
+                Dashboard
+            </small>
+
+        </a>
+
+
+        <a href="karyawan.html">
+
+           
+
+            <small>
+                Karyawan
+            </small>
+
+        </a>
+
+
+        <a href="site.html">
+
+       
+
+            <small>
+                Site
+            </small>
+
+        </a>
+
+
+        <a
+            href="absensi.html"
+            class="active"
+        >
+
+
+
+            <small>
+                Absensi
+            </small>
+
+        </a>
+
+
+        <a href="laporan.html">
+
+   
+
+            <small>
+                Laporan
+            </small>
+
+        </a>
+
+
+    </nav>
+
+
+
+    <!-- =========================
+         SCRIPTS
+    ========================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../supabase-config.js"></script>
+
+    <script src="../dashboard-auth.js"></script>
+
+    <script src="absensi.js"></script>
+
+
+</body>
+
+</html>

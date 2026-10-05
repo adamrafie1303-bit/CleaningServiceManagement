@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Koneksi Supabase</title>
+</head>
+<body>
+  <h2>Test Koneksi Supabase</h2>
+  <p id="status">Memeriksa konfigurasi...</p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+
+  <script>
+    const statusElement = document.getElementById("status");
+
+    if (window.supabaseClient) {
+      statusElement.textContent =
+        "Berhasil: Supabase client sudah dibuat dan siap digunakan.";
+    } else {
+      statusElement.textContent =
+        "Gagal: Supabase client belum berhasil dibuat. Periksa konfigurasi.";
+    }
+  </script>
+</body>
+</html>

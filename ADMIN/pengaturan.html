@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan | Cleaning Service Management</title>
+  <link rel="stylesheet" href="pengaturan.css">
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img
+          src="../ASSETS/logo-ardend.png"
+          alt="Logo PT. Ardend Adhikara Pandita"
+          class="sidebar-logo"
+        >
+        <div class="brand-text">
+          <strong>Cleaning Service</strong>
+          <span>Management</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="dashboard.html" class="menu-link">
+          <span>Dashboard</span>
+        </a>
+
+        <a href="karyawan.html" class="menu-link">
+          <span>Karyawan</span>
+        </a>
+
+        <a href="site.html" class="menu-link">
+          <span>Site</span>
+        </a>
+
+        <a href="absensi.html" class="menu-link">
+          <span>Absensi</span>
+        </a>
+
+        <a href="checklist.html" class="menu-link">
+          <span>Checklist</span>
+        </a>
+
+        <a href="laporan.html" class="menu-link">
+          <span>Laporan</span>
+        </a>
+
+        <a href="pengaturan.html" class="menu-link active">
+          <span>Pengaturan</span>
+        </a>
+      </nav>
+            <div class="sidebar-footer">
+        <small>PT. Ardend Adhikara Pandita</small>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- HEADER -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>Pengaturan Aplikasi</h1>
+          <p>Informasi perusahaan dan konfigurasi sistem</p>
+        </div>
+
+        <div class="topbar-profile">
+          <div class="profile-info">
+            <strong data-user-username>Admin</strong>
+            <span data-user-role>Administrator</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT -->
+      <section class="page-content">
+
+        <div class="page-heading">
+          <div>
+            <h2>Pengaturan Sistem</h2>
+            <p>Informasi konfigurasi yang tersimpan pada database aplikasi.</p>
+          </div>
+
+          <button type="button" id="refreshSettingsBtn">
+            Muat Ulang
+          </button>
+        </div>
+
+        <!-- COMPANY INFORMATION -->
+        <section class="settings-card">
+          <div class="section-heading">
+            <div>
+              <h3>Informasi Perusahaan</h3>
+              <p>Identitas perusahaan yang digunakan pada aplikasi.</p>
+            </div>
+          </div>
+
+          <div class="company-information">
+            <img
+              src="../ASSETS/logo-ardend.png"
+              alt="Logo PT. Ardend Adhikara Pandita"
+              class="settings-company-logo"
+            >
+
+            <div>
+              <h4>PT. Ardend Adhikara Pandita</h4>
+              <p>Cleaning Service Management</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SYSTEM SETTINGS -->
+        <section class="settings-card">
+          <div class="section-heading">
+            <div>
+              <h3>Konfigurasi Sistem</h3>
+              <p>Data pengaturan yang dibaca dari tabel setting Supabase.</p>
+            </div>
+
+            <span id="settingsCount">0 pengaturan</span>
+          </div>
+
+          <div id="settingsMessage" role="status">
+            Memuat konfigurasi...
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Pengaturan</th>
+                  <th>Nilai</th>
+                  <th>Informasi</th>
+                </tr>
+              </thead>
+
+              <tbody id="settingsTableBody">
+                <tr>
+                  <td colspan="4">Memuat konfigurasi...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECURITY INFORMATION -->
+        <section class="settings-card">
+          <div class="section-heading">
+            <div>
+              <h3>Keamanan Akun</h3>
+              <p>Informasi singkat mengenai pengelolaan akses aplikasi.</p>
+            </div>
+          </div>
+
+          <div class="security-notice">
+            <strong>Autentikasi dikelola oleh Supabase Auth.</strong>
+            <p>
+              Password pengguna tidak disimpan sebagai teks biasa di tabel
+              aplikasi. Pengaturan akses data tetap mengikuti autentikasi,
+              role, dan kebijakan Row Level Security (RLS).
+            </p>
+          </div>
+        </section>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <nav class="mobile-nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="karyawan.html">Karyawan</a>
+    <a href="site.html">Site</a>
+    <a href="absensi.html">Absensi</a>
+    <a href="laporan.html">Laporan</a>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="../dashboard-auth.js"></script>
+  <script src="pengaturan.js"></script>
+</body>
+</html>

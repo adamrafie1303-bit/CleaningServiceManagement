@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Profil Karyawan - Cleaning Service Management</title>
+
+    <link rel="icon" type="image/png" href="../ASSETS/logo-ardend.png">
+    <link rel="stylesheet" href="profil-karyawan.css">
+</head>
+
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-header">
+            <img
+                src="../ASSETS/logo-ardend.png"
+                alt="Logo PT. Ardend Adhikara Pandita"
+                class="sidebar-logo"
+            >
+
+            <div class="brand-text">
+                <strong>Cleaning Service</strong>
+                <span>Management</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <a href="dashboard-karyawan.html" class="menu-item">
+                <span class="menu-icon">⌂</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="absensi-karyawan.html" class="menu-item">
+                <span class="menu-icon">◷</span>
+                <span>Absensi</span>
+            </a>
+
+            <a href="checklist-karyawan.html" class="menu-item">
+                <span class="menu-icon">✓</span>
+                <span>Checklist</span>
+            </a>
+
+            <a href="laporan-karyawan.html" class="menu-item">
+                <span class="menu-icon">▤</span>
+                <span>Laporan</span>
+            </a>
+
+            <a href="profil-karyawan.html" class="menu-item active">
+                <span class="menu-icon">◯</span>
+                <span>Profil</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <button type="button" id="logoutBtn" class="logout-btn">
+                <span class="menu-icon">↪</span>
+                <span>Keluar</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- ================= OVERLAY MOBILE ================= -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ================= MAIN ================= -->
+    <main class="main-content">
+
+        <!-- HEADER -->
+        <header class="top-header">
+
+            <button
+                type="button"
+                class="menu-toggle"
+                id="menuToggle"
+                aria-label="Buka menu"
+            >
+                ☰
+            </button>
+
+            <div class="header-brand">
+
+                <img
+                    src="../ASSETS/logo-ardend.png"
+                    alt="Logo"
+                    class="header-logo"
+                >
+
+                <div class="header-brand-text">
+                    <strong>PT. Ardend Adhikara Pandita</strong>
+                    <span>Cleaning Service Management</span>
+                </div>
+
+            </div>
+
+            <div class="header-right">
+
+                <button
+                    type="button"
+                    class="notification-btn"
+                    id="notificationBtn"
+                    aria-label="Notifikasi"
+                >
+                    🔔
+                    <span class="notification-dot"></span>
+                </button>
+
+                <div class="profile-mini">
+
+                    <div class="profile-mini-avatar" id="headerAvatar">
+                        CS
+                    </div>
+
+                    <div class="profile-mini-info">
+
+                        <strong id="headerEmployeeName">
+                            Karyawan
+                        </strong>
+
+                        <span id="headerEmployeeId">
+                            CS001
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- ================= CONTENT ================= -->
+        <section class="page-content">
+
+            <div class="page-heading">
+
+                <div>
+
+                    <h1>Profil Saya</h1>
+
+                    <p>
+                        Kelola informasi profil dan akun Anda.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- ================= PROFILE ================= -->
+            <div class="profile-layout">
+
+                <!-- PROFILE SUMMARY -->
+                <section class="card profile-summary-card">
+
+                    <div class="profile-cover"></div>
+
+                    <div class="profile-summary-content">
+
+                        <div class="profile-avatar-wrapper">
+
+                            <div
+                                class="profile-avatar"
+                                id="profileAvatar"
+                            >
+                                CS
+                            </div>
+
+                        </div>
+
+                        <div class="profile-summary-info">
+
+                            <h2 id="profileName">
+                                Karyawan
+                            </h2>
+
+                            <p id="profilePosition">
+                                Cleaning Service
+                            </p>
+
+                            <div class="profile-status">
+
+                                <span class="status-dot"></span>
+
+                                <span id="profileStatus">
+                                    Aktif
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="profile-id-box">
+
+                        <span>ID Karyawan</span>
+
+                        <strong id="profileEmployeeId">
+                            CS001
+                        </strong>
+
+                    </div>
+
+                </section>
+
+                <!-- INFORMATION -->
+                <section class="card information-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>Informasi Pribadi</h2>
+
+                            <p>
+                                Informasi data karyawan yang terdaftar.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="information-grid">
+
+                        <div class="info-field">
+
+                            <label>Nama Lengkap</label>
+
+                            <div class="info-value">
+
+                                <span class="field-icon">👤</span>
+
+                                <span id="infoName">
+                                    -
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="info-field">
+
+                            <label>ID Karyawan</label>
+
+                            <div class="info-value">
+
+                                <span class="field-icon">▣</span>
+
+                                <span id="infoEmployeeId">
+                                    -
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="info-field">
+
+                            <label>Nomor HP</label>
+
+                            <div class="info-value">
+
+                                <span class="field-icon">☎</span>
+
+                                <span id="infoPhone">
+                                    -
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="info-field">
+
+                            <label>Jabatan</label>
+
+                            <div class="info-value">
+
+                                <span class="field-icon">◆</span>
+
+                                <span id="infoPosition">
+                                    -
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="info-field full-width">
+
+                            <label>Site Penempatan</label>
+
+                            <div class="info-value">
+
+                                <span class="field-icon">⌖</span>
+
+                                <span id="infoSite">
+                                    -
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- ACCOUNT -->
+                <section class="card account-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>Informasi Akun</h2>
+
+                            <p>
+                                Informasi akun yang digunakan untuk login.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="account-list">
+
+                        <div class="account-row">
+
+                            <div class="account-icon">
+                                👤
+                            </div>
+
+                            <div class="account-detail">
+
+                                <span class="account-label">
+                                    Username
+                                </span>
+
+                                <strong id="accountUsername">
+                                    -
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                        <div class="account-row">
+
+                            <div class="account-icon">
+                                🔐
+                            </div>
+
+                            <div class="account-detail">
+
+                                <span class="account-label">
+                                    Password
+                                </span>
+
+                                <strong>
+                                    ••••••••••
+                                </strong>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="change-password-btn"
+                                id="changePasswordBtn"
+                            >
+                                Ubah Password
+                            </button>
+
+                        </div>
+
+                        <div class="account-row">
+
+                            <div class="account-icon">
+                                ●
+                            </div>
+
+                            <div class="account-detail">
+
+                                <span class="account-label">
+                                    Status Akun
+                                </span>
+
+                                <strong
+                                    class="account-status"
+                                    id="accountStatus"
+                                >
+                                    Aktif
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- SITE -->
+                <section class="card site-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h2>Site Penempatan</h2>
+
+                            <p>
+                                Informasi lokasi kerja Anda.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="site-information">
+
+                        <div class="site-icon">
+                            ⌖
+                        </div>
+
+                        <div class="site-detail">
+
+                            <span class="site-label">
+                                Site Anda
+                            </span>
+
+                            <h3 id="siteName">
+                                -
+                            </h3>
+
+                            <p id="siteAddress">
+                                -
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- BANNER -->
+            <div class="work-banner">
+
+                <div class="work-banner-icon">
+                    ✦
+                </div>
+
+                <div class="work-banner-text">
+
+                    <strong>
+                        Kerja Bersih
+                    </strong>
+
+                    <span>
+                        Lingkungan Bersih · Hidup Lebih Baik
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ================= MOBILE NAV ================= -->
+    <nav class="mobile-bottom-nav">
+
+        <a href="dashboard-karyawan.html" class="bottom-nav-item">
+            <span class="bottom-icon">⌂</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="absensi-karyawan.html" class="bottom-nav-item">
+            <span class="bottom-icon">◷</span>
+            <span>Absensi</span>
+        </a>
+
+        <a href="checklist-karyawan.html" class="bottom-nav-item">
+            <span class="bottom-icon">✓</span>
+            <span>Checklist</span>
+        </a>
+
+        <a href="laporan-karyawan.html" class="bottom-nav-item">
+            <span class="bottom-icon">▤</span>
+            <span>Laporan</span>
+        </a>
+
+        <a href="profil-karyawan.html" class="bottom-nav-item active">
+            <span class="bottom-icon">◯</span>
+            <span>Profil</span>
+        </a>
+
+    </nav>
+
+    <!-- ================= PASSWORD MODAL ================= -->
+    <div
+        class="modal-overlay"
+        id="passwordModal"
+        hidden
+    >
+
+        <div class="modal-card">
+
+            <button
+                type="button"
+                class="modal-close"
+                id="closePasswordModal"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+
+            <div class="modal-header">
+
+                <div class="modal-icon">
+                    🔐
+                </div>
+
+                <div>
+
+                    <h2>Ubah Password</h2>
+
+                    <p>
+                        Masukkan password baru Anda.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <form id="changePasswordForm">
+
+                <div class="form-group">
+
+                    <label for="oldPassword">
+                        Password Lama
+                    </label>
+
+                    <input
+                        type="password"
+                        id="oldPassword"
+                        name="oldPassword"
+                        placeholder="Masukkan password lama"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="newPassword">
+                        Password Baru
+                    </label>
+
+                    <input
+                        type="password"
+                        id="newPassword"
+                        name="newPassword"
+                        placeholder="Masukkan password baru"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="confirmPassword">
+                        Konfirmasi Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        placeholder="Ulangi password baru"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+                <div
+                    class="form-message"
+                    id="passwordMessage"
+                ></div>
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="btn-secondary"
+                        id="cancelPasswordBtn"
+                    >
+                        Batal
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn-primary"
+                    >
+                        Simpan Password
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- ================================================= -->
+    <!-- SUPABASE -->
+    <!-- PENTING: CONFIG HARUS SEBELUM JS PROFIL -->
+    <!-- ================================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../supabase-config.js"></script>
+
+    <script src="profil-karyawan.js"></script>
+
+</body>
+</html>

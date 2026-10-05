@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard Karyawan - Cleaning Service Management</title>
+
+    <link rel="icon" type="image/png" href="../ASSETS/logo-ardend.png">
+    <link rel="stylesheet" href="dashboard-karyawan.css">
+</head>
+
+<body>
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-header">
+
+            <img
+                src="../ASSETS/logo-ardend.png"
+                alt="Logo PT. Ardend Adhikara Pandita"
+                class="sidebar-logo"
+            >
+
+            <div class="brand-text">
+                <strong>Cleaning Service</strong>
+                <span>Management</span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <a
+                href="dashboard-karyawan.html"
+                class="menu-item active"
+            >
+                <span>Dashboard</span>
+            </a>
+
+
+            <a
+                href="absensi-karyawan.html"
+                class="menu-item"
+            >
+            
+                <span>Absensi</span>
+            </a>
+
+
+            <a
+                href="checklist-karyawan.html"
+                class="menu-item"
+            >
+            
+                <span>Checklist</span>
+            </a>
+
+
+            <a
+                href="laporan-karyawan.html"
+                class="menu-item"
+            >
+            
+                <span>Laporan</span>
+            </a>
+
+
+            <a
+                href="profil-karyawan.html"
+                class="menu-item"
+            >
+            
+                <span>Profil</span>
+            </a>
+
+        </nav>
+
+
+
+    </aside>
+
+
+    <!-- ================= MOBILE OVERLAY ================= -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main-content">
+
+
+        <!-- ================= HEADER ================= -->
+
+        <header class="top-header">
+
+
+            <button
+                type="button"
+                class="menu-toggle"
+                id="menuToggle"
+                aria-label="Buka menu"
+            >
+                ☰
+            </button>
+
+
+            <div class="header-brand">
+
+                <img
+                    src="../ASSETS/logo-ardend.png"
+                    alt="Logo PT. Ardend Adhikara Pandita"
+                    class="header-logo"
+                >
+
+
+                <div class="header-brand-text">
+
+                    <strong>
+                        PT. Ardend Adhikara Pandita
+                    </strong>
+
+                    <span>
+                        Cleaning Service Management
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="header-right">
+
+
+                <button
+                    type="button"
+                    class="notification-btn"
+                    id="notificationBtn"
+                    aria-label="Notifikasi"
+                >
+                    🔔
+
+                    <span class="notification-dot"></span>
+                </button>
+
+
+                <div class="profile-mini">
+
+
+                    <div
+                        class="profile-mini-avatar"
+                        id="headerAvatar"
+                    >
+                        CS
+                    </div>
+
+
+                    <div class="profile-mini-info">
+
+                        <strong data-employee-name>
+                            Karyawan
+                        </strong>
+
+                        <span data-employee-id>
+                            CS001
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ================= CONTENT ================= -->
+
+        <section class="page-content">
+
+
+            <!-- ================= MESSAGE ================= -->
+
+            <div
+                id="messageBox"
+                class="message-box"
+                style="display: none;"
+            ></div>
+
+
+
+            <!-- ================= PAGE HEADING ================= -->
+
+            <div class="page-heading">
+
+                <div>
+
+                    <h1>
+                        Hai, <span id="welcomeName">
+                            Karyawan
+                        </span> 👋
+                    </h1>
+
+                    <p>
+                        Selamat datang kembali di Dashboard Karyawan.
+                    </p>
+
+                </div>
+
+
+                <div class="today-date">
+
+                    <span>Hari ini</span>
+
+                    <strong id="todayDate">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ================= SITE CARD ================= -->
+
+            <section class="dashboard-card site-card">
+
+
+                <div class="site-card-main">
+
+
+                    <div class="site-icon">
+                        ⌖
+                    </div>
+
+
+                    <div class="site-info">
+
+                        <span class="card-label">
+                            Site Anda
+                        </span>
+
+                        <h2 id="employeeSite">
+                            Belum ditentukan
+                        </h2>
+
+                        <p id="employeeSiteAddress">
+                            Site belum ditentukan.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div
+                    class="site-schedule"
+                    id="siteSchedule"
+                >
+
+                    <!-- Diisi otomatis oleh JavaScript -->
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================= ATTENDANCE ================= -->
+
+            <section class="dashboard-card attendance-card">
+
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            Absensi Hari Ini
+                        </span>
+
+                        <h2 id="todayAttendanceStatus">
+                            Belum Absen
+                        </h2>
+
+                        <p id="todayAttendanceTime">
+                            Belum ada catatan absensi hari ini
+                        </p>
+
+                    </div>
+
+
+                    <div class="attendance-status-icon">
+                        ◷
+                    </div>
+
+                </div>
+
+
+                <div class="attendance-times">
+
+
+                    <div class="attendance-time-item">
+
+                        <span>
+                            Absen Masuk
+                        </span>
+
+                        <strong id="todayCheckIn">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="attendance-time-item">
+
+                        <span>
+                            Absen Pulang
+                        </span>
+
+                        <strong id="todayCheckOut">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================= CHECKLIST ================= -->
+
+            <section class="dashboard-card checklist-card">
+
+
+                <div class="card-header">
+
+
+                    <div>
+
+                        <span class="section-label">
+                            Checklist Hari Ini
+                        </span>
+
+                        <h2>
+                            Pekerjaan Anda
+                        </h2>
+
+                    </div>
+
+
+                    <a
+                        href="checklist-karyawan.html"
+                        class="card-action"
+                    >
+                        Lihat Semua →
+                    </a>
+
+                </div>
+
+
+
+                <!-- PROGRESS -->
+
+                <div class="checklist-progress">
+
+
+                    <div class="progress-info">
+
+                        <span>
+                            Progress
+                        </span>
+
+                        <strong id="progressChecklist">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="progress-track">
+
+                        <div
+                            class="progress-bar"
+                            id="checklistProgressBar"
+                            style="width: 0%;"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CHECKLIST SUMMARY -->
+
+                <div class="checklist-summary">
+
+
+                    <div class="checklist-stat">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong id="totalChecklist">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="checklist-stat completed">
+
+                        <span>
+                            Selesai
+                        </span>
+
+                        <strong id="completedChecklist">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="checklist-stat pending">
+
+                        <span>
+                            Belum
+                        </span>
+
+                        <strong id="pendingChecklist">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- CHECKLIST PREVIEW -->
+
+                <div
+                    class="checklist-preview"
+                    id="checklistPreview"
+                >
+
+                    <div class="empty-preview">
+                        Memuat checklist...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================= QUICK MENU ================= -->
+
+            <section class="quick-menu">
+
+
+                <a
+                    href="absensi-karyawan.html"
+                    class="quick-menu-card"
+                >
+
+                    <div class="quick-icon">
+                        ◷
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Absensi
+                        </strong>
+
+                        <span>
+                            Kelola absensi hari ini
+                        </span>
+
+                    </div>
+
+                    <span class="quick-arrow">
+                        →
+                    </span>
+
+                </a>
+
+
+
+                <a
+                    href="checklist-karyawan.html"
+                    class="quick-menu-card"
+                >
+
+                    <div class="quick-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Checklist
+                        </strong>
+
+                        <span>
+                            Lihat pekerjaan hari ini
+                        </span>
+
+                    </div>
+
+                    <span class="quick-arrow">
+                        →
+                    </span>
+
+                </a>
+
+
+
+                <a
+                    href="laporan-karyawan.html"
+                    class="quick-menu-card"
+                >
+
+                    <div class="quick-icon">
+                        ▤
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Laporan
+                        </strong>
+
+                        <span>
+                            Lihat laporan pekerjaan
+                        </span>
+
+                    </div>
+
+                    <span class="quick-arrow">
+                        →
+                    </span>
+
+                </a>
+
+
+
+                <a
+                    href="profil-karyawan.html"
+                    class="quick-menu-card"
+                >
+
+                    <div class="quick-icon">
+                        ◯
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Profil
+                        </strong>
+
+                        <span>
+                            Kelola informasi akun
+                        </span>
+
+                    </div>
+
+                    <span class="quick-arrow">
+                        →
+                    </span>
+
+                </a>
+
+            </section>
+
+
+
+            <!-- ================= WORK BANNER ================= -->
+
+            <div class="work-banner">
+
+
+                <div class="work-banner-icon">
+                    ✦
+                </div>
+
+
+                <div class="work-banner-text">
+
+                    <strong>
+                        Kerja Bersih
+                    </strong>
+
+                    <span>
+                        Lingkungan Bersih · Hidup Lebih Baik
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= FOOTER ================= -->
+
+        <footer class="page-footer">
+
+            <span>
+                © <span id="footerYear"></span>
+                PT. Ardend Adhikara Pandita
+            </span>
+
+            <span>
+                Cleaning Service Management
+            </span>
+
+        </footer>
+
+
+    </main>
+
+
+
+    <!-- ================= MOBILE BOTTOM NAV ================= -->
+
+    <nav class="mobile-bottom-nav">
+
+
+        <a
+            href="dashboard-karyawan.html"
+            class="bottom-nav-item active"
+        >
+
+            <span class="bottom-icon">
+                ⌂
+            </span>
+
+            <span>
+                Dashboard
+            </span>
+
+        </a>
+
+
+        <a
+            href="absensi-karyawan.html"
+            class="bottom-nav-item"
+        >
+
+            <span class="bottom-icon">
+                ◷
+            </span>
+
+            <span>
+                Absensi
+            </span>
+
+        </a>
+
+
+        <a
+            href="checklist-karyawan.html"
+            class="bottom-nav-item"
+        >
+
+            <span class="bottom-icon">
+                ✓
+            </span>
+
+            <span>
+                Checklist
+            </span>
+
+        </a>
+
+
+        <a
+            href="laporan-karyawan.html"
+            class="bottom-nav-item"
+        >
+
+            <span class="bottom-icon">
+                ▤
+            </span>
+
+            <span>
+                Laporan
+            </span>
+
+        </a>
+
+
+        <a
+            href="profil-karyawan.html"
+            class="bottom-nav-item"
+        >
+
+            <span class="bottom-icon">
+                ◯
+            </span>
+
+            <span>
+                Profil
+            </span>
+
+        </a>
+
+
+    </nav>
+
+
+
+    <!-- ================= SUPABASE ================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../supabase-config.js"></script>
+
+    <script src="dashboard-karyawan.js"></script>
+
+</body>
+
+</html>

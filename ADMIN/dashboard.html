@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard Admin | Cleaning Service Management</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+
+            <img
+                src="../assets/logo-ardend.png"
+            >
+
+            <div class="brand-text">
+                <strong>PT. Ardend Adhikara Pandita</strong>
+                <span>Cleaning Service</span>
+            </div>
+
+        </div>
+
+
+        <!-- MENU -->
+        <nav class="sidebar-menu">
+
+            <a href="dashboard.html" class="menu-item active">
+                <span class="menu-icon">▦</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="karyawan.html" class="menu-item">
+                <span class="menu-icon">👥</span>
+                <span>Karyawan</span>
+            </a>
+
+            <a href="site.html" class="menu-item">
+                <span class="menu-icon">🏢</span>
+                <span>Site</span>
+            </a>
+
+            <a href="absensi.html" class="menu-item">
+                <span class="menu-icon">🕘</span>
+                <span>Absensi</span>
+            </a>
+
+            <a href="checklist.html" class="menu-item">
+                <span class="menu-icon">✓</span>
+                <span>Checklist</span>
+            </a>
+
+            <a href="laporan.html" class="menu-item">
+                <span class="menu-icon">📋</span>
+                <span>Laporan</span>
+            </a>
+
+            <a href="pengaturan.html" class="menu-item">
+                <span class="menu-icon">⚙</span>
+                <span>Pengaturan</span>
+            </a>
+
+        </nav>
+
+
+        <!-- SIDEBAR BOTTOM -->
+        <div class="sidebar-bottom">
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div class="admin-info">
+
+                    <strong data-user-username>
+                        Administrator
+                    </strong>
+
+                    <span data-user-role>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button class="logout-btn">
+
+                <span>↪</span>
+                <span>Logout</span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <h1>
+                    Cleaning Service Management
+                </h1>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <button
+                    type="button"
+                    class="notification-btn"
+                    aria-label="Notifikasi"
+                >
+                    🔔
+                    <span class="notification-dot"></span>
+                </button>
+
+
+                <div class="topbar-profile">
+
+                    <div class="topbar-avatar">
+                        A
+                    </div>
+
+                    <div class="topbar-profile-info">
+
+                        <strong data-user-username>
+                            Administrator
+                        </strong>
+
+                        <span data-user-role>
+                            Admin
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- DASHBOARD -->
+        <section class="dashboard-content">
+
+
+            <!-- WELCOME -->
+            <div class="welcome-card">
+
+                <div class="welcome-text">
+
+                    <span class="welcome-label">
+                        ADMINISTRATOR
+                    </span>
+
+                    <h2>
+                        PT. Ardend Adhikara Pandita
+                    </h2>
+
+                    <p>
+                        Pantau aktivitas karyawan, absensi, checklist,
+                        laporan, dan seluruh operasional cleaning service.
+                    </p>
+
+                </div>
+
+
+                <div class="welcome-icon">
+                    📊
+                </div>
+
+            </div>
+
+
+            <!-- SECTION HEADER -->
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Ringkasan
+                    </h2>
+
+                    <p>
+                        Data aktivitas hari ini
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- STATISTICS -->
+            <div class="stats-grid">
+
+
+                <!-- TOTAL KARYAWAN -->
+                <div class="stat-card">
+
+                    <div class="stat-icon blue">
+                        👥
+                    </div>
+
+                    <div class="stat-info">
+
+                        <span>
+                            Total Karyawan
+                        </span>
+
+                        <strong id="totalKaryawan">
+                            ...
+                        </strong>
+
+                        <small id="totalKaryawanLabel">
+                            Memuat...
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TOTAL SITE -->
+                <div class="stat-card">
+
+                    <div class="stat-icon purple">
+                        🏢
+                    </div>
+
+                    <div class="stat-info">
+
+                        <span>
+                            Total Site
+                        </span>
+
+                        <strong id="totalSite">
+                            ...
+                        </strong>
+
+                        <small id="totalSiteLabel">
+                            Memuat...
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- HADIR -->
+                <div class="stat-card">
+
+                    <div class="stat-icon green">
+                        ✓
+                    </div>
+
+                    <div class="stat-info">
+
+                        <span>
+                            Hadir Hari Ini
+                        </span>
+
+                        <strong id="hadirHariIni">
+                            ...
+                        </strong>
+
+                        <small id="hadirHariIniLabel">
+                            Memuat...
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LAPORAN -->
+                <div class="stat-card">
+
+                    <div class="stat-icon orange">
+                        📋
+                    </div>
+
+                    <div class="stat-info">
+
+                        <span>
+                            Laporan Hari Ini
+                        </span>
+
+                        <strong id="laporanHariIni">
+                            ...
+                        </strong>
+
+                        <small id="laporanHariIniLabel">
+                            Memuat...
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CHECKLIST -->
+                <div class="stat-card">
+
+                    <div class="stat-icon checklist">
+                        ✓
+                    </div>
+
+                    <div class="stat-info">
+
+                        <span>
+                            Checklist Hari Ini
+                        </span>
+
+                        <strong id="checklistHariIni">
+                            ...
+                        </strong>
+
+                        <small id="checklistHariIniLabel">
+                            Memuat...
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DASHBOARD GRID -->
+            <div class="dashboard-grid">
+
+
+                <!-- ABSENSI -->
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                Absensi Hari Ini
+                            </h3>
+
+                            <p>
+                                Ringkasan kehadiran karyawan
+                            </p>
+
+                        </div>
+
+                        <span class="card-date">
+                            Hari Ini
+                        </span>
+
+                    </div>
+
+
+                    <div class="attendance-summary">
+
+
+                        <!-- CIRCLE -->
+                        <div class="attendance-circle">
+
+                            <strong id="attendancePercentage">
+                                ...
+                            </strong>
+
+                            <span>
+                                Kehadiran
+                            </span>
+
+                        </div>
+
+
+                        <!-- DETAIL -->
+                        <div class="attendance-detail">
+
+
+                            <div class="attendance-item">
+
+                                <span class="dot green-dot"></span>
+
+                                <span>
+                                    Hadir
+                                </span>
+
+                                <strong id="attendanceHadir">
+                                    ...
+                                </strong>
+
+                            </div>
+
+
+                            <div class="attendance-item">
+
+                                <span class="dot orange-dot"></span>
+
+                                <span>
+                                    Terlambat
+                                </span>
+
+                                <strong id="attendanceTerlambat">
+                                    ...
+                                </strong>
+
+                            </div>
+
+
+                            <div class="attendance-item">
+
+                                <span class="dot red-dot"></span>
+
+                                <span>
+                                    Belum Absen
+                                </span>
+
+                                <strong id="attendanceBelum">
+                                    ...
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATUS SITE -->
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <h3>
+                                Status Site
+                            </h3>
+
+                            <p>
+                                Kondisi operasional site
+                            </p>
+
+                        </div>
+
+                        <span class="online-status">
+                            ● Online
+                        </span>
+
+                    </div>
+
+
+                    <!--
+                        dashboard.js akan mengisi
+                        isi bagian ini dari Supabase
+                    -->
+                    <div
+                        class="site-list"
+                        id="siteList"
+                    >
+
+                        <div class="site-item">
+
+                            <div class="site-name">
+
+                                <strong>
+                                    Memuat site...
+                                </strong>
+
+                                <span>
+                                    Memuat data karyawan...
+                                </span>
+
+                            </div>
+
+                            <span class="status-badge active">
+                                Memuat
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LAPORAN TERBARU -->
+            <div class="dashboard-card report-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h3>
+                            Laporan Terbaru
+                        </h3>
+
+                        <p>
+                            Aktivitas laporan karyawan
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="laporan.html"
+                        class="view-all"
+                    >
+                        Lihat Semua →
+                    </a>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Karyawan
+                                </th>
+
+                                <th>
+                                    Site
+                                </th>
+
+                                <th>
+                                    Pekerjaan
+                                </th>
+
+                                <th>
+                                    Waktu
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <!--
+                            dashboard.js akan mengisi
+                            laporan terbaru dari Supabase
+                        -->
+                        <tbody id="reportTableBody">
+
+                            <tr>
+
+                                <td colspan="5">
+                                    Memuat laporan...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+
+    <!-- MOBILE NAV -->
+    <nav class="mobile-nav">
+
+
+        <a
+            href="dashboard.html"
+            class="mobile-nav-item active"
+        >
+
+            <span>
+                ▦
+            </span>
+
+            <small>
+                Dashboard
+            </small>
+
+        </a>
+
+
+        <a
+            href="karyawan.html"
+            class="mobile-nav-item"
+        >
+
+            <span>
+                👥
+            </span>
+
+            <small>
+                Karyawan
+            </small>
+
+        </a>
+
+
+        <a
+            href="absensi.html"
+            class="mobile-nav-item"
+        >
+
+            <span>
+                🕘
+            </span>
+
+            <small>
+                Absensi
+            </small>
+
+        </a>
+
+
+        <a
+            href="checklist.html"
+            class="mobile-nav-item"
+        >
+
+            <span>
+                ✓
+            </span>
+
+            <small>
+                Checklist
+            </small>
+
+        </a>
+
+
+        <a
+            href="laporan.html"
+            class="mobile-nav-item"
+        >
+
+            <span>
+                📋
+            </span>
+
+            <small>
+                Laporan
+            </small>
+
+        </a>
+
+    </nav>
+
+
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../supabase-config.js"></script>
+
+<script src="../dashboard-auth.js"></script>
+
+<script src="dashboard.js"></script>
+
+</body>
+
+</html>

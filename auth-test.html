@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Test Login Admin</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 60px auto;
+      padding: 20px;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f1f5f9;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Test Login Admin</h2>
+
+  <input
+    type="email"
+    id="email"
+    placeholder="Email Admin"
+  >
+
+  <input
+    type="password"
+    id="password"
+    placeholder="Password Admin"
+  >
+
+  <button onclick="loginAdmin()">
+    Login Admin
+  </button>
+
+  <div id="status">
+    Belum login.
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+
+  <script>
+    async function loginAdmin() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const status = document.getElementById("status");
+
+      if (!email || !password) {
+        status.textContent = "Email dan password wajib diisi.";
+        return;
+      }
+
+      status.textContent = "Sedang login...";
+
+      try {
+        const {
+          data: authData,
+          error: authError
+        } = await window.supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+
+        if (authError) {
+          throw authError;
+        }
+
+        if (!authData.user) {
+          throw new Error("User Auth tidak ditemukan.");
+        }
+
+        const authUserId = authData.user.id;
+
+        const {
+          data: userData,
+          error: userError
+        } = await window.supabaseClient
+          .from("users")
+          .select("id_user, username, role, status, auth_user_id")
+          .eq("auth_user_id", authUserId)
+          .single();
+
+        if (userError) {
+          throw userError;
+        }
+
+        if (!userData) {
+          throw new Error(
+            "Akun Auth ditemukan, tetapi belum terhubung ke tabel users."
+          );
+        }
+
+        if (userData.status !== "AKTIF") {
+          await window.supabaseClient.auth.signOut();
+
+          throw new Error(
+            "Akun ditemukan tetapi statusnya bukan AKTIF."
+          );
+        }
+
+        if (userData.role !== "ADMIN") {
+          await window.supabaseClient.auth.signOut();
+
+          throw new Error(
+            "Akun ini bukan ADMIN."
+          );
+        }
+
+        status.textContent =
+          "LOGIN BERHASIL!\n\n" +
+          "ID User: " + userData.id_user + "\n" +
+          "Username: " + userData.username + "\n" +
+          "Role: " + userData.role + "\n" +
+          "Status: " + userData.status;
+
+      } catch (error) {
+        console.error(error);
+
+        status.textContent =
+          "LOGIN GAGAL:\n\n" +
+          error.message;
+      }
+    }
+  </script>
+
+</body>
+</html>
