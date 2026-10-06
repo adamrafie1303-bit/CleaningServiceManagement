@@ -1,5 +1,10 @@
 "use strict";
 
+/* =========================================================
+   DASHBOARD KARYAWAN
+   PT. Ardend Adhikara Pandita
+   ========================================================= */
+
 const db = window.supabaseClient;
 
 let currentUser = null;
@@ -7,995 +12,476 @@ let currentEmployee = null;
 let currentSite = null;
 
 
-// ================================
-// SAAT HALAMAN DIBUKA
-// ================================
+/* =========================================================
+   START
+   ========================================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     startDashboard();
 });
 
 
-// ================================
-// START DASHBOARD
-// ================================
-
 async function startDashboard() {
 
-    if (!db) {
-        showMessage(
-            "Supabase belum terhubung.",
-            "error"
-        );
-        return;
-    }
-
-    setText(
-        "footerYear",
-        new Date().getFullYear()
-    );
-
-    setText(
-        "todayDate",
-        getTodayText()
-    );
-
-    bindLogout();
-
     try {
-        await loadLoginUser();
 
-        if (!currentUser) {
+        /* ================= CEK SUPABASE ================= */
+
+        if (!db) {
+            showMessage("Koneksi sistem tidak tersedia.", "error");
             return;
         }
 
-        await loadEmployee();
 
-        if (!currentEmployee) {
+        /* ================= TAHUN ================= */
+
+        const yearElement = document.getElementById("currentYear");
+
+        if (yearElement) {
+            yearElement.textContent = new Date().getFullYear();
+        }
+
+
+        /* ================= TANGGAL ================= */
+
+        renderTodayDate();
+
+
+        /* ================= LOGIN ================= */
+
+        const loginSuccess = await loadLoginUser();
+
+        if (!loginSuccess) {
             return;
         }
+
+
+        /* ================= KARYAWAN ================= */
+
+        const employeeSuccess = await loadEmployee();
+
+        if (!employeeSuccess) {
+            return;
+        }
+
+
+        /* ================= SITE ================= */
 
         await loadSite();
 
-        await loadAttendance();
 
-        await loadChecklist();
+        /* ================= RENDER ================= */
 
         renderDashboard();
 
-        hideMessage();
-
     } catch (error) {
 
-        console.error(error);
+        console.error("Dashboard Error:", error);
 
         showMessage(
-            "Dashboard gagal dimuat. Periksa koneksi Supabase.",
+            "Terjadi kesalahan saat memuat dashboard.",
             "error"
         );
     }
 }
 
 
-// ================================
-// CEK LOGIN
-// ================================
+/* =========================================================
+   LOAD LOGIN USER
+   ========================================================= */
 
 async function loadLoginUser() {
 
-    const result = await db.auth.getUser();
+    try {
 
-    if (result.error) {
-        throw result.error;
-    }
-
-    const authUser = result.data.user;
-
-    if (!authUser) {
-
-        window.location.href = "../index.html";
-
-        return;
-    }
+        const {
+            data: authData,
+            error: authError
+        } = await db.auth.getUser();
 
 
-    const userResult = await db
-        .from("users")
-        .select("*")
-        .eq("auth_user_id", authUser.id)
-        .maybeSingle();
+        /* Tidak login */
+
+        if (
+            authError ||
+            !authData ||
+            !authData.user
+        ) {
+
+            window.location.href = "../index.html";
+
+            return false;
+        }
 
 
-    if (userResult.error) {
-        throw userResult.error;
-    }
+        currentUser = authData.user;
 
 
-    if (!userResult.data) {
+        /* ================= USERS ================= */
+
+        const {
+            data: userData,
+            error: userError
+        } = await db
+            .from("users")
+            .select("*")
+            .eq("auth_user_id", currentUser.id)
+            .maybeSingle();
+
+
+        if (userError) {
+
+            console.error(
+                "Users Error:",
+                userError
+            );
+
+            showMessage(
+                "Data akun tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!userData) {
+
+            showMessage(
+                "Data akun tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        /* ================= STATUS ================= */
+
+        if (
+            userData.status &&
+            userData.status !== "AKTIF"
+        ) {
+
+            showMessage(
+                "Akun kamu tidak aktif.",
+                "error"
+            );
+
+            await db.auth.signOut();
+
+            setTimeout(() => {
+                window.location.href = "../index.html";
+            }, 1500);
+
+            return false;
+        }
+
+
+        /* ================= ROLE ================= */
+
+        if (
+            userData.role &&
+            userData.role !== "KARYAWAN"
+        ) {
+
+            showMessage(
+                "Akun ini bukan akun karyawan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        /* ================= ID KARYAWAN ================= */
+
+        if (!userData.id_karyawan) {
+
+            showMessage(
+                "Akun belum terhubung dengan data karyawan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        currentUser.profile = userData;
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "loadLoginUser Error:",
+            error
+        );
 
         showMessage(
-            "Data akun tidak ditemukan.",
+            "Gagal memeriksa akun.",
             "error"
         );
 
-        return;
-    }
-
-
-    currentUser = userResult.data;
-
-
-    const status = String(
-        currentUser.status || ""
-    ).toUpperCase();
-
-
-    const role = String(
-        currentUser.role || ""
-    ).toUpperCase();
-
-
-    if (status !== "AKTIF") {
-
-        await db.auth.signOut();
-
-        window.location.href = "../index.html";
-
-        return;
-    }
-
-
-    if (role !== "KARYAWAN") {
-
-        showMessage(
-            "Akun ini bukan akun karyawan.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (!currentUser.id_karyawan) {
-
-        showMessage(
-            "Akun belum memiliki ID karyawan.",
-            "error"
-        );
-
-        return;
+        return false;
     }
 }
 
 
-// ================================
-// LOAD DATA KARYAWAN
-// ================================
+/* =========================================================
+   LOAD EMPLOYEE
+   ========================================================= */
 
 async function loadEmployee() {
 
-    const result = await db
-        .from("karyawan")
-        .select("*")
-        .eq(
-            "id_karyawan",
-            currentUser.id_karyawan
-        )
-        .maybeSingle();
+    try {
+
+        const employeeId =
+            currentUser?.profile?.id_karyawan;
 
 
-    if (result.error) {
-        throw result.error;
-    }
+        if (!employeeId) {
+            return false;
+        }
 
 
-    if (!result.data) {
+        const {
+            data,
+            error
+        } = await db
+            .from("karyawan")
+            .select("*")
+            .eq("id_karyawan", employeeId)
+            .maybeSingle();
+
+
+        if (error) {
+
+            console.error(
+                "Karyawan Error:",
+                error
+            );
+
+            showMessage(
+                "Data karyawan tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!data) {
+
+            showMessage(
+                "Data karyawan tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        currentEmployee = data;
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "loadEmployee Error:",
+            error
+        );
 
         showMessage(
-            "Data karyawan tidak ditemukan.",
+            "Gagal memuat data karyawan.",
             "error"
         );
 
-        return;
+        return false;
     }
-
-
-    currentEmployee = result.data;
 }
 
 
-// ================================
-// LOAD SITE
-// ================================
+/* =========================================================
+   LOAD SITE
+   ========================================================= */
 
 async function loadSite() {
 
-    if (!currentEmployee.id_site) {
-        currentSite = null;
+    try {
+
+        if (!currentEmployee?.id_site) {
+            return false;
+        }
+
+
+        const {
+            data,
+            error
+        } = await db
+            .from("site")
+            .select("*")
+            .eq("id_site", currentEmployee.id_site)
+            .maybeSingle();
+
+
+        if (error) {
+
+            console.error(
+                "Site Error:",
+                error
+            );
+
+            return false;
+        }
+
+
+        currentSite = data || null;
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "loadSite Error:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   RENDER DASHBOARD
+   ========================================================= */
+
+function renderDashboard() {
+
+    if (!currentEmployee) {
         return;
     }
 
 
-    const result = await db
-        .from("site")
-        .select("*")
-        .eq(
-            "id_site",
-            currentEmployee.id_site
-        )
-        .maybeSingle();
+    /* ================= NAMA ================= */
 
+    const employeeName =
+        currentEmployee.nama ||
+        "Karyawan";
 
-    if (result.error) {
-        throw result.error;
-    }
 
+    const employeeId =
+        currentEmployee.id_karyawan ||
+        "CS---";
 
-    currentSite = result.data;
-}
 
+    const welcomeName =
+        document.getElementById("welcomeName");
 
-// ================================
-// LOAD ABSENSI
-// ================================
 
-async function loadAttendance() {
-
-    const result = await db
-        .from("absensi")
-        .select("*")
-        .eq(
-            "id_karyawan",
-            currentEmployee.id_karyawan
-        );
-
-
-    if (result.error) {
-        throw result.error;
-    }
-
-
-    const records = result.data || [];
-
-    const today = getLocalDate();
-
-
-    let todayRecord = null;
-
-
-    for (let i = records.length - 1; i >= 0; i--) {
-
-        const record = records[i];
-
-        const dateValue =
-            record.tanggal ||
-            record.tanggal_absensi ||
-            record.created_at ||
-            record.waktu_masuk ||
-            record.jam_masuk;
-
-
-        if (
-            dateValue &&
-            getDatePart(dateValue) === today
-        ) {
-
-            todayRecord = record;
-
-            break;
-        }
-    }
-
-
-    renderAttendance(todayRecord);
-}
-
-
-// ================================
-// LOAD CHECKLIST
-// ================================
-
-async function loadChecklist() {
-
-    const result = await db
-        .from("checklist_harian")
-        .select("*")
-        .eq(
-            "id_karyawan",
-            currentEmployee.id_karyawan
-        )
-        .eq(
-            "tanggal",
-            getLocalDate()
-        );
-
-
-    if (result.error) {
-        throw result.error;
-    }
-
-
-    const checklist = result.data || [];
-
-
-    const total = checklist.length;
-
-
-    let selesai = 0;
-
-
-    for (let i = 0; i < checklist.length; i++) {
-
-        const status = String(
-            checklist[i].status || ""
-        ).toUpperCase();
-
-
-        if (status === "SELESAI") {
-            selesai++;
-        }
-    }
-
-
-    const belum = total - selesai;
-
-
-    let progress = 0;
-
-
-    if (total > 0) {
-        progress = Math.round(
-            (selesai / total) * 100
-        );
-    }
-
-
-    setText(
-        "totalChecklist",
-        total
-    );
-
-
-    setText(
-        "completedChecklist",
-        selesai
-    );
-
-
-    setText(
-        "pendingChecklist",
-        belum
-    );
-
-
-    setText(
-        "progressChecklist",
-        progress + "%"
-    );
-
-
-    const progressBar =
-        document.getElementById(
-            "checklistProgressBar"
-        );
-
-
-    if (progressBar) {
-
-        progressBar.style.width =
-            progress + "%";
-    }
-
-
-    renderChecklistPreview(checklist);
-}
-
-
-// ================================
-// RENDER DATA UTAMA
-// ================================
-
-function renderDashboard() {
-
-    const nama =
-        currentEmployee.nama || "Karyawan";
-
-
-    const id =
-        currentEmployee.id_karyawan || "—";
-
-
-    setText(
-        "welcomeName",
-        nama
-    );
-
-
-    const employeeIds =
-        document.querySelectorAll(
-            "[data-employee-id]"
-        );
-
-
-    employeeIds.forEach(function (element) {
-
-        element.textContent = id;
-
-    });
-
-
-    const employeeNames =
+    const employeeNameElements =
         document.querySelectorAll(
             "[data-employee-name]"
         );
 
 
-    employeeNames.forEach(function (element) {
+    const employeeIdElements =
+        document.querySelectorAll(
+            "[data-employee-id]"
+        );
 
-        element.textContent = nama;
 
+    if (welcomeName) {
+        welcomeName.textContent =
+            employeeName;
+    }
+
+
+    employeeNameElements.forEach(element => {
+        element.textContent =
+            employeeName;
     });
 
+
+    employeeIdElements.forEach(element => {
+        element.textContent =
+            employeeId;
+    });
+
+
+    /* ================= SITE ================= */
 
     renderSite();
 }
 
 
-// ================================
-// RENDER SITE
-// ================================
+/* =========================================================
+   RENDER SITE
+   ========================================================= */
 
 function renderSite() {
 
+    const siteNameElement =
+        document.getElementById("employeeSite");
+
+
+    const siteAddressElement =
+        document.getElementById(
+            "employeeSiteAddress"
+        );
+
+
     if (!currentSite) {
 
-        setText(
-            "employeeSite",
-            "Belum ditentukan"
-        );
+        if (siteNameElement) {
+            siteNameElement.textContent =
+                "Site belum tersedia";
+        }
 
-
-        setText(
-            "employeeSiteAddress",
-            "Site belum ditentukan."
-        );
-
+        if (siteAddressElement) {
+            siteAddressElement.textContent =
+                "Data site belum ditemukan";
+        }
 
         return;
     }
 
 
-    setText(
-        "employeeSite",
+    const siteName =
         currentSite.nama_site ||
-        currentSite.id_site ||
-        "Site"
-    );
+        currentSite.nama ||
+        currentSite.name ||
+        "Site";
 
 
-    setText(
-        "employeeSiteAddress",
+    const siteAddress =
         currentSite.alamat ||
-        "Alamat belum tersedia."
-    );
+        currentSite.address ||
+        "-";
 
 
-    const schedule =
-        document.getElementById(
-            "siteSchedule"
-        );
-
-
-    if (!schedule) {
-        return;
+    if (siteNameElement) {
+        siteNameElement.textContent =
+            siteName;
     }
 
 
-    schedule.innerHTML = "";
-
-
-    addSchedule(
-        schedule,
-        "Jam Masuk",
-        formatTime(
-            currentSite.jam_masuk
-        )
-    );
-
-
-    addSchedule(
-        schedule,
-        "Batas Terlambat",
-        formatTime(
-            currentSite.batas_terlambat
-        )
-    );
-
-
-    addSchedule(
-        schedule,
-        "Jam Pulang",
-        formatTime(
-            currentSite.jam_pulang
-        )
-    );
-
-
-    addSchedule(
-        schedule,
-        "Radius Absensi",
-        formatRadius(
-            currentSite.radius_meter
-        )
-    );
-}
-
-
-// ================================
-// TAMBAH JADWAL
-// ================================
-
-function addSchedule(
-    container,
-    label,
-    value
-) {
-
-    const item =
-        document.createElement("div");
-
-
-    item.className =
-        "schedule-item";
-
-
-    const span =
-        document.createElement("span");
-
-
-    span.textContent = label;
-
-
-    const strong =
-        document.createElement("strong");
-
-
-    strong.textContent = value;
-
-
-    item.appendChild(span);
-
-    item.appendChild(strong);
-
-    container.appendChild(item);
-}
-
-
-// ================================
-// RENDER ABSENSI
-// ================================
-
-function renderAttendance(record) {
-
-    if (!record) {
-
-        setText(
-            "todayAttendanceStatus",
-            "Belum Absen"
-        );
-
-
-        setText(
-            "todayAttendanceTime",
-            "Belum ada catatan absensi hari ini"
-        );
-
-
-        setText(
-            "todayCheckIn",
-            "—"
-        );
-
-
-        setText(
-            "todayCheckOut",
-            "—"
-        );
-
-
-        return;
-    }
-
-
-    const checkIn =
-        record.jam_masuk ||
-        record.waktu_masuk ||
-        record.check_in ||
-        null;
-
-
-    const checkOut =
-        record.jam_pulang ||
-        record.waktu_pulang ||
-        record.check_out ||
-        null;
-
-
-    const status =
-        record.status ||
-        record.status_absensi ||
-        "";
-
-
-    let statusText = "Tercatat";
-
-
-    if (checkOut) {
-
-        statusText =
-            "Absensi Selesai";
-
-    } else if (checkIn) {
-
-        statusText =
-            "Sudah Absen Masuk";
-
-    } else if (status) {
-
-        statusText =
-            status;
-    }
-
-
-    setText(
-        "todayAttendanceStatus",
-        statusText
-    );
-
-
-    if (status) {
-
-        setText(
-            "todayAttendanceTime",
-            "Status: " + status
-        );
-
-    } else {
-
-        setText(
-            "todayAttendanceTime",
-            "Catatan absensi hari ini"
-        );
-    }
-
-
-    setText(
-        "todayCheckIn",
-        formatTime(checkIn)
-    );
-
-
-    setText(
-        "todayCheckOut",
-        formatTime(checkOut)
-    );
-}
-
-
-// ================================
-// RENDER CHECKLIST PREVIEW
-// ================================
-
-function renderChecklistPreview(
-    checklist
-) {
-
-    const container =
-        document.getElementById(
-            "checklistPreview"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML = "";
-
-
-    if (checklist.length === 0) {
-
-        const empty =
-            document.createElement("div");
-
-
-        empty.className =
-            "empty-preview";
-
-
-        empty.textContent =
-            "Belum ada checklist hari ini.";
-
-
-        container.appendChild(empty);
-
-        return;
-    }
-
-
-    const max =
-        Math.min(
-            checklist.length,
-            5
-        );
-
-
-    for (let i = 0; i < max; i++) {
-
-        const item =
-            checklist[i];
-
-
-        const row =
-            document.createElement("div");
-
-
-        row.className =
-            "check-preview-item";
-
-
-        const dot =
-            document.createElement("span");
-
-
-        const status =
-            String(
-                item.status || ""
-            ).toUpperCase();
-
-
-        if (status === "SELESAI") {
-
-            dot.className =
-                "check-dot done";
-
-        } else {
-
-            dot.className =
-                "check-dot";
-        }
-
-
-        const text =
-            document.createElement("span");
-
-
-        text.textContent =
-            item.pekerjaan ||
-            "Pekerjaan";
-
-
-        row.appendChild(dot);
-
-        row.appendChild(text);
-
-        container.appendChild(row);
+    if (siteAddressElement) {
+        siteAddressElement.textContent =
+            siteAddress;
     }
 }
 
 
-// ================================
-// LOGOUT
-// ================================
-
-function bindLogout() {
-
-    const buttons =
-        document.querySelectorAll(
-            ".logout-btn"
-        );
-
-
-    buttons.forEach(function (button) {
-
-        button.addEventListener(
-            "click",
-            logout
-        );
-
-    });
-}
-
-
-async function logout() {
-
-    const result =
-        await db.auth.signOut();
-
-
-    if (result.error) {
-
-        console.error(
-            result.error
-        );
-
-
-        showMessage(
-            "Logout gagal.",
-            "error"
-        );
-
-
-        return;
-    }
-
-
-    sessionStorage.clear();
-
-
-    window.location.href =
-        "../index.html";
-}
-
-
-// ================================
-// TANGGAL
-// ================================
-
-function getLocalDate() {
-
-    const date =
-        new Date();
-
-
-    const year =
-        date.getFullYear();
-
-
-    const month =
-        String(
-            date.getMonth() + 1
-        ).padStart(2, "0");
-
-
-    const day =
-        String(
-            date.getDate()
-        ).padStart(2, "0");
-
-
-    return (
-        year +
-        "-" +
-        month +
-        "-" +
-        day
-    );
-}
-
-
-function getTodayText() {
-
-    return new Date().toLocaleDateString(
-        "id-ID",
-        {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-        }
-    );
-}
-
-
-function getDatePart(value) {
-
-    const text =
-        String(value);
-
-
-    return text.substring(
-        0,
-        10
-    );
-}
-
-
-// ================================
-// FORMAT WAKTU
-// ================================
-
-function formatTime(value) {
-
-    if (!value) {
-        return "—";
-    }
-
-
-    const text =
-        String(value);
-
-
-    if (
-        text.length >= 5 &&
-        text.charAt(2) === ":"
-    ) {
-
-        return text.substring(
-            0,
-            5
-        );
-    }
-
-
-    const match =
-        text.match(
-            /(\d{1,2}:\d{2})/
-        );
-
-
-    if (match) {
-        return match[1];
-    }
-
-
-    return text;
-}
-
-
-// ================================
-// FORMAT RADIUS
-// ================================
-
-function formatRadius(value) {
-
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-
-        return "—";
-    }
-
-
-    return value + " meter";
-}
-
-
-// ================================
-// SET TEXT
-// ================================
-
-function setText(
-    id,
-    value
-) {
+/* =========================================================
+   TANGGAL HARI INI
+   ========================================================= */
+
+function renderTodayDate() {
 
     const element =
-        document.getElementById(id);
-
-
-    if (element) {
-        element.textContent = value;
-    }
-}
-
-
-// ================================
-// MESSAGE
-// ================================
-
-function showMessage(
-    message,
-    type
-) {
-
-    const element =
-        document.getElementById(
-            "messageBox"
-        );
+        document.getElementById("todayDate");
 
 
     if (!element) {
@@ -1003,30 +489,76 @@ function showMessage(
     }
 
 
-    element.textContent =
-        message;
+    const today = new Date();
 
 
-    element.className =
-        "message-box " + type;
+    const formatted =
+        today.toLocaleDateString(
+            "id-ID",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        );
 
 
-    element.style.display =
-        "block";
+    element.textContent = formatted;
 }
 
 
-function hideMessage() {
+/* =========================================================
+   MESSAGE
+   ========================================================= */
 
-    const element =
+function showMessage(
+    message,
+    type = "info"
+) {
+
+    const box =
         document.getElementById(
             "messageBox"
         );
 
 
-    if (element) {
-        element.style.display =
-            "none";
+    if (!box) {
+        return;
     }
-}
 
+
+    box.textContent = message;
+
+
+    box.style.display = "block";
+
+
+    if (type === "error") {
+
+        box.style.color = "#b42318";
+
+        box.style.background =
+            "#fff1f0";
+
+        box.style.borderColor =
+            "#ffd0cc";
+
+    } else {
+
+        box.style.color = "#087df5";
+
+        box.style.background =
+            "#eaf4ff";
+
+        box.style.borderColor =
+            "#d9ebff";
+    }
+
+
+    setTimeout(() => {
+
+        box.style.display = "none";
+
+    }, 4000);
+}

@@ -1,180 +1,537 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Karyawan | Cleaning Service Management</title>
-  <link rel="stylesheet" href="laporan-karyawan.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Laporan | Cleaning Service Management</title>
+
+    <link rel="stylesheet" href="laporan-karyawan.css">
 </head>
+
 <body>
-  <div class="app-layout">
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <img src="../ASSETS/logo-ardend.png" alt="Logo PT. Ardend Adhikara Pandita">
-        <div>
-          <strong>Cleaning Service</strong>
-          <small>Management</small>
-        </div>
-      </div>
 
-      <nav class="sidebar-menu" aria-label="Navigasi karyawan">
-        <a href="dashboard-karyawan.html">Dashboard</a>
-        <a href="absensi-karyawan.html">Absensi</a>
-        <a href="checklist-karyawan.html">Checklist</a>
-        <a href="laporan-karyawan.html" class="active">Laporan</a>
-        <a href="profil-karyawan.html">Profil</a>
-      </nav>
+    <!-- =====================================================
+         TOPBAR
+         ===================================================== -->
 
-      <div class="sidebar-footer">
-        <small>PT. Ardend Adhikara Pandita</small>
-      </div>
-    </aside>
+    <header class="topbar">
 
-    <main class="main-content">
-      <header class="topbar">
-        <div class="page-heading">
-          <h1>Laporan Pekerjaan</h1>
-          <p>Kirim laporan pekerjaan dan lihat riwayat laporan Anda.</p>
+        <div class="brand">
+
+            <img
+                src="../ASSETS/logo-ardend.png"
+                alt="Logo PT. Ardend Adhikara Pandita"
+            >
+
+            <div class="brand-text">
+
+                <strong>
+                    PT. Ardend Adhikara Pandita
+                </strong>
+
+                <span>
+                    Cleaning Service Management
+                </span>
+
+            </div>
+
         </div>
 
-    <div class="topbar-profile">
-       <div class="profile-text">
-        <strong data-employee-id>Memuat...</strong>
-        <small data-employee-name>Karyawan</small>
-       </div>
-     </div>
-        </header>
 
-      <section class="page-content">
-        <div id="reportMessage" class="message-box" role="status" aria-live="polite"></div>
+        <div class="employee-info">
 
-        <section class="welcome-panel">
-          <div>
-            <p>Lokasi penugasan</p>
-            <h2 id="reportSite">Memuat site...</h2>
-            <p id="reportDate">Memuat tanggal...</p>
-          </div>
-          <button type="button" id="refreshReportsBtn">Muat Ulang</button>
-        </section>
+            <div
+                class="employee-avatar"
+                id="employeeAvatar"
+            >
+                K
+            </div>
 
-        <section class="data-card">
-          <div class="section-heading">
+            <div class="employee-text">
+
+                <strong id="topNama">
+                    Karyawan
+                </strong>
+
+                <span id="topId">
+                    -
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="report-page">
+
+
+        <!-- =================================================
+             PAGE HEADER
+             ================================================= -->
+
+        <section class="page-header">
+
             <div>
-              <h2>Buat Laporan Baru</h2>
-              <p>Isi detail pekerjaan yang sudah dilakukan.</p>
-            </div>
-          </div>
 
-          <form id="reportForm">
-            <div class="form-group">
-              <label for="reportArea">Area pekerjaan</label>
-              <input
-                type="text"
-                id="reportArea"
-                name="area"
-                maxlength="120"
-                placeholder="Contoh: Lobby, Toilet, Koridor"
-                required
-              >
+                <span class="page-label">
+                    LAPORAN PEKERJAAN
+                </span>
+
+                <h1>
+                    Laporan Karyawan
+                </h1>
+
+                <p id="tanggalHariIni">
+                    Memuat tanggal...
+                </p>
+
             </div>
 
-            <div class="form-group">
-              <label for="reportWork">Pekerjaan</label>
-              <input
-                type="text"
-                id="reportWork"
-                name="pekerjaan"
-                maxlength="200"
-                placeholder="Contoh: Mengepel lantai"
-                required
-              >
+
+            <div class="employee-badge">
+
+                <span>
+                    ID Karyawan
+                </span>
+
+                <strong id="employeeId">
+                    -
+                </strong>
+
             </div>
 
-            <div class="form-group">
-              <label for="reportDescription">Keterangan</label>
-              <textarea
-                id="reportDescription"
-                name="keterangan"
-                rows="4"
-                maxlength="2000"
-                placeholder="Tuliskan keterangan atau hasil pekerjaan..."
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="photoBeforeUrl">URL foto sebelum (opsional)</label>
-              <input
-                type="url"
-                id="photoBeforeUrl"
-                name="foto_sebelum"
-                placeholder="https://..."
-              >
-            </div>
-
-            <div class="form-group">
-              <label for="photoAfterUrl">URL foto sesudah (opsional)</label>
-              <input
-                type="url"
-                id="photoAfterUrl"
-                name="foto_sesudah"
-                placeholder="https://..."
-              >
-            </div>
-
-            <button type="submit" id="submitReportBtn">Kirim Laporan</button>
-          </form>
         </section>
 
-        <section class="data-card">
-          <div class="section-heading">
+
+
+        <!-- =================================================
+             SITE CARD
+             ================================================= -->
+
+        <section class="site-card">
+
+            <div class="site-icon">
+                🏢
+            </div>
+
+
+            <div class="site-content">
+
+                <span class="card-label">
+                    SITE PENUGASAN
+                </span>
+
+                <h2 id="siteName">
+                    Memuat site...
+                </h2>
+
+                <p id="siteAddress">
+                    Memuat alamat...
+                </p>
+
+            </div>
+
+
+            <div
+                class="site-status"
+                id="siteStatus"
+            >
+                AKTIF
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             FILTER
+             ================================================= -->
+
+        <section class="filter-card">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="card-label">
+                        FILTER LAPORAN
+                    </span>
+
+                    <h2>
+                        Riwayat Pekerjaan
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="filter-grid">
+
+                <div class="form-group">
+
+                    <label for="filterTanggal">
+                        Tanggal
+                    </label>
+
+                    <input
+                        type="date"
+                        id="filterTanggal"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="filterBulan">
+                        Bulan
+                    </label>
+
+                    <select id="filterBulan">
+
+                        <option value="">
+                            Semua Bulan
+                        </option>
+
+                        <option value="01">
+                            Januari
+                        </option>
+
+                        <option value="02">
+                            Februari
+                        </option>
+
+                        <option value="03">
+                            Maret
+                        </option>
+
+                        <option value="04">
+                            April
+                        </option>
+
+                        <option value="05">
+                            Mei
+                        </option>
+
+                        <option value="06">
+                            Juni
+                        </option>
+
+                        <option value="07">
+                            Juli
+                        </option>
+
+                        <option value="08">
+                            Agustus
+                        </option>
+
+                        <option value="09">
+                            September
+                        </option>
+
+                        <option value="10">
+                            Oktober
+                        </option>
+
+                        <option value="11">
+                            November
+                        </option>
+
+                        <option value="12">
+                            Desember
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="filterStatus">
+                        Status
+                    </label>
+
+                    <select id="filterStatus">
+
+                        <option value="">
+                            Semua Status
+                        </option>
+
+                        <option value="SELESAI">
+                            Selesai
+                        </option>
+
+                        <option value="BELUM_SELESAI">
+                            Belum Selesai
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="filter-action">
+
+                    <button
+                        type="button"
+                        id="filterButton"
+                        class="primary-button"
+                    >
+                        Terapkan Filter
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             SUMMARY
+             ================================================= -->
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+
+                <div class="summary-icon">
+                    📋
+                </div>
+
+                <div class="summary-content">
+
+                    <span>
+                        Total Tugas
+                    </span>
+
+                    <strong id="totalTasks">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon success">
+                    ✓
+                </div>
+
+                <div class="summary-content">
+
+                    <span>
+                        Selesai
+                    </span>
+
+                    <strong id="completedTasks">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon warning">
+                    !
+                </div>
+
+                <div class="summary-content">
+
+                    <span>
+                        Belum Selesai
+                    </span>
+
+                    <strong id="pendingTasks">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             REPORT LIST
+             ================================================= -->
+
+        <section class="report-card">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="card-label">
+                        DATA PEKERJAAN
+                    </span>
+
+                    <h2>
+                        Daftar Laporan
+                    </h2>
+
+                </div>
+
+
+                <span
+                    class="report-count"
+                    id="reportCount"
+                >
+                    0 laporan
+                </span>
+
+            </div>
+
+
+            <div
+                class="report-list"
+                id="reportList"
+            >
+
+                <div class="loading-state">
+
+                    <div class="loading-spinner"></div>
+
+                    <p>
+                        Memuat laporan...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             EMPTY / INFO
+             ================================================= -->
+
+        <section class="info-card">
+
+            <div class="info-icon">
+                ℹ
+            </div>
+
             <div>
-              <h2>Riwayat Laporan Saya</h2>
-              <p>Daftar laporan pekerjaan yang pernah dikirim.</p>
+
+                <strong>
+                    Informasi
+                </strong>
+
+                <p>
+                    Halaman ini menampilkan riwayat
+                    pekerjaan checklist berdasarkan
+                    data yang tercatat pada sistem.
+                </p>
+
             </div>
-          </div>
 
-          <div class="filter-controls">
-            <label for="reportDateFilter">Filter tanggal</label>
-            <input type="date" id="reportDateFilter">
-            <button type="button" id="clearReportFilter">Semua Tanggal</button>
-          </div>
-
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Tanggal</th>
-                  <th>Waktu</th>
-                  <th>Area</th>
-                  <th>Pekerjaan</th>
-                  <th>Keterangan</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="reportsTableBody">
-                <tr>
-                  <td colspan="6">Memuat riwayat laporan...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <p id="reportsCount">0 laporan</p>
         </section>
-      </section>
+
+
     </main>
-  </div>
 
-  <nav class="mobile-bottom-nav" aria-label="Navigasi karyawan">
-    <a href="dashboard-karyawan.html">Dashboard</a>
-    <a href="absensi-karyawan.html">Absensi</a>
-    <a href="checklist-karyawan.html">Checklist</a>
-    <a href="laporan-karyawan.html" class="active">Laporan</a>
-    <a href="profil-karyawan.html">Profil</a>
-  </nav>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-config.js"></script>
-  <script src="laporan-karyawan.js"></script>
+
+    <!-- =====================================================
+         MOBILE NAVIGATION
+         ===================================================== -->
+
+    <nav class="mobile-nav">
+
+        <a
+            href="absensi-karyawan.html"
+            class="mobile-nav-item"
+        >
+
+            <span class="nav-icon">
+                📍
+            </span>
+
+            <span>
+                Absensi
+            </span>
+
+        </a>
+
+
+        <a
+            href="checklist-karyawan.html"
+            class="mobile-nav-item"
+        >
+
+            <span class="nav-icon">
+                ✓
+            </span>
+
+            <span>
+                Checklist
+            </span>
+
+        </a>
+
+
+        <a
+            href="laporan-karyawan.html"
+            class="mobile-nav-item active"
+        >
+
+            <span class="nav-icon">
+                📄
+            </span>
+
+            <span>
+                Laporan
+            </span>
+
+        </a>
+
+    </nav>
+
+
+
+    <!-- =====================================================
+         TOAST
+         ===================================================== -->
+
+    <div
+        id="toast"
+        class="toast"
+    ></div>
+
+
+
+    <!-- =====================================================
+         SCRIPT
+         ===================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../supabase-config.js"></script>
+
+    <script src="laporan-karyawan.js"></script>
+
 </body>
+
 </html>

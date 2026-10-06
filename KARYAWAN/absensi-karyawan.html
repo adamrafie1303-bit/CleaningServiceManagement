@@ -4,358 +4,193 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Absensi Karyawan - Cleaning Service</title>
+    <title>Absensi Karyawan | Cleaning Service Management</title>
 
+    <link rel="icon" href="../ASSETS/logo-ardend.png">
     <link rel="stylesheet" href="absensi-karyawan.css">
 </head>
 
 <body>
 
-<div class="app-container">
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <header class="topbar">
 
-        <div class="sidebar-brand">
-            <img src="../ASSETS/logo-ardend.png" alt="Logo PT. Ardend Adhikara Pandita">
+        <div class="brand">
 
-            <div>
-                <strong>Cleaning Service</strong>
-                <span>Management</span>
+            <img
+                src="../ASSETS/logo-ardend.png"
+                alt="Logo PT. Ardend Adhikara Pandita"
+            >
+
+            <div class="brand-text">
+
+                <strong>
+                    PT. Ardend Adhikara Pandita
+                </strong>
+
+                <span>
+                    Cleaning Service Management
+                </span>
+
             </div>
+
         </div>
 
-        <nav class="sidebar-menu">
 
-            <a href="dashboard-karyawan.html">
-            
-                <span>Dashboard</span>
-            </a>
+        <!-- DATA KARYAWAN -->
 
-            <a href="absensi-karyawan.html" class="active">
-            
-                <span>Absensi</span>
-            </a>
+        <div class="employee-info">
 
-            <a href="checklist-karyawan.html">
-            
-                <span>Checklist</span>
-            </a>
-
-            <a href="laporan-karyawan.html">
-            
-                <span>Riwayat Laporan</span>
-            </a>
-
-            <a href="profil-karyawan.html">
-            
-                <span>Profil</span>
-            </a>
-
-        </nav>
-
-      <div class="sidebar-footer">
-        <small>PT. Ardend Adhikara Pandita</small>
-      </div>
-
-    </aside>
-
-
-    <!-- MAIN -->
-    <main class="main-content">
-
-        <!-- TOPBAR -->
-        <header class="topbar">
-
-            <button id="mobileMenuBtn" class="mobile-menu-btn">
-                ☰
-            </button>
-
-            <div class="topbar-title">
-                <h2>Absensi</h2>
-                <p>Catat kehadiran Anda</p>
+            <div class="employee-avatar">
+                CS
             </div>
 
-            <div class="topbar-user">
+            <div class="employee-detail">
 
-                <div class="user-info">
-                    <strong id="topNama">Karyawan</strong>
-                    <span id="topId">-</span>
+                <strong id="topNama">
+                    Karyawan
+                </strong>
+
+                <span id="topId">
+                    CS---
+                </span>
+
             </div>
 
-        </header>
+        </div>
+
+    </header>
 
 
-        <!-- CONTENT -->
-        <section class="content">
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
 
-            <!-- GREETING -->
-            <div class="page-header">
+    <main class="attendance-page">
+
+        <!-- =================================================
+             PAGE HEADER
+             ================================================= -->
+
+        <section class="page-header">
+
+            <div>
+
+                <span class="page-label">
+                    AREA KARYAWAN
+                </span>
+
+                <h1>
+                    Absensi
+                </h1>
+
+                <p id="tanggalHariIni">
+                    -
+                </p>
+
+            </div>
+
+
+            <div class="employee-badge">
+
+                <strong id="employeeId">
+                    CS---
+                </strong>
+
+                <span id="employeeName">
+                    Karyawan
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SITE
+             ================================================= -->
+
+        <section class="card site-card">
+
+            <div class="card-heading">
+
+                <div class="card-icon site-icon">
+                    📍
+                </div>
 
                 <div>
-                    <h1>Absensi Hari Ini</h1>
-                    <p id="tanggalHariIni">-</p>
-                </div>
 
-                <div class="employee-badge">
-                    <strong id="employeeId">-</strong>
-                    <span id="employeeName">-</span>
-                </div>
-
-            </div>
-
-
-            <!-- SITE -->
-            <div class="card">
-
-                <div class="card-header">
-                    <div>
-                        <h3>📍 Lokasi Kerja</h3>
-                        <p>Pastikan Anda berada di area site sebelum melakukan absensi.</p>
-                    </div>
-                </div>
-
-                <div class="site-info">
-
-                    <div class="site-item">
-                        <span class="label">Site</span>
-                        <strong id="siteName">Memuat...</strong>
-                    </div>
-
-                    <div class="site-item">
-                        <span class="label">Alamat</span>
-                        <strong id="siteAddress">-</strong>
-                    </div>
-
-                    <div class="site-item">
-                        <span class="label">Radius</span>
-                        <strong id="siteRadius">-</strong>
-                    </div>
-
-                    <div class="site-item">
-                        <span class="label">Jam Masuk</span>
-                        <strong id="siteJamMasuk">-</strong>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- LOCATION CHECK -->
-            <div class="card">
-
-                <div class="card-header">
-
-                    <div>
-                        <h3>📡 Verifikasi Lokasi</h3>
-                        <p>Gunakan GPS untuk memeriksa jarak Anda dari site.</p>
-                    </div>
-
-                    <button id="checkLocationBtn" class="primary-btn">
-                        📍 Periksa Lokasi
-                    </button>
-
-                </div>
-
-
-                <div id="locationStatus" class="status-box neutral">
-                    Lokasi belum diperiksa.
-                </div>
-
-                <div id="distanceStatus" class="distance-box">
-                    Jarak dari site: -
-                </div>
-
-            </div>
-
-
-            <!-- ABSENSI MASUK -->
-            <div class="card">
-
-                <div class="card-header">
-
-                    <div>
-                        <h3>🟢 Absen Masuk</h3>
-                        <p>Ambil foto sebagai bukti kehadiran.</p>
-                    </div>
-
-                    <span id="checkInStatus" class="status-pill neutral">
-                        Belum Absen
+                    <span>
+                        SITE PENEMPATAN
                     </span>
 
-                </div>
+                    <h2>
+                        Lokasi Kerja
+                    </h2>
 
-
-                <div class="attendance-area">
-
-                    <div class="photo-area">
-
-                        <div id="checkInPhotoPreview" class="photo-preview">
-                            <span>📷</span>
-                            <p>Foto belum dipilih</p>
-                        </div>
-
-                        <input
-                            type="file"
-                            id="checkInPhoto"
-                            accept="image/*"
-                            capture="user"
-                            hidden
-                        >
-
-                        <button
-                            type="button"
-                            id="checkInPhotoBtn"
-                            class="secondary-btn"
-                        >
-                            📷 Ambil Foto
-                        </button>
-
-                    </div>
-
-
-                    <div class="attendance-action">
-
-                        <div class="time-display">
-                            <span>Waktu</span>
-                            <strong id="checkInTime">--:--:--</strong>
-                        </div>
-
-                        <button
-                            id="checkInBtn"
-                            class="success-btn"
-                            disabled
-                        >
-                            🟢 Absen Masuk
-                        </button>
-
-                    </div>
+                    <p>
+                        Pastikan kamu berada di area site sebelum
+                        melakukan absensi.
+                    </p>
 
                 </div>
 
             </div>
 
 
-            <!-- ABSENSI PULANG -->
-            <div class="card">
+            <div class="site-grid">
 
-                <div class="card-header">
+                <div class="site-item">
 
-                    <div>
-                        <h3>🔴 Absen Pulang</h3>
-                        <p>Absen pulang setelah menyelesaikan pekerjaan.</p>
-                    </div>
-
-                    <span id="checkOutStatus" class="status-pill neutral">
-                        Belum Absen
+                    <span>
+                        Site
                     </span>
 
-                </div>
-
-
-                <div class="attendance-area">
-
-                    <div class="photo-area">
-
-                        <div id="checkOutPhotoPreview" class="photo-preview">
-                            <span>📷</span>
-                            <p>Foto belum dipilih</p>
-                        </div>
-
-                        <input
-                            type="file"
-                            id="checkOutPhoto"
-                            accept="image/*"
-                            capture="user"
-                            hidden
-                        >
-
-                        <button
-                            type="button"
-                            id="checkOutPhotoBtn"
-                            class="secondary-btn"
-                        >
-                            📷 Ambil Foto
-                        </button>
-
-                    </div>
-
-
-                    <div class="attendance-action">
-
-                        <div class="time-display">
-                            <span>Waktu</span>
-                            <strong id="checkOutTime">--:--:--</strong>
-                        </div>
-
-                        <button
-                            id="checkOutBtn"
-                            class="danger-btn"
-                            disabled
-                        >
-                            🔴 Absen Pulang
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- INSTRUCTION -->
-            <div id="attendanceInstruction" class="instruction-box">
-                💡 Silakan periksa lokasi terlebih dahulu sebelum melakukan absensi.
-            </div>
-
-
-            <!-- HISTORY -->
-            <div class="card">
-
-                <div class="card-header">
-
-                    <div>
-                        <h3>📋 Riwayat Absensi</h3>
-                        <p>Riwayat kehadiran Anda.</p>
-                    </div>
-
-                    <select id="historyFilter">
-                        <option value="ALL">Semua</option>
-                        <option value="HADIR">Hadir</option>
-                        <option value="TERLAMBAT">Terlambat</option>
-                        <option value="IZIN">Izin</option>
-                        <option value="CUTI">Cuti</option>
-                    </select>
+                    <strong id="siteName">
+                        Memuat...
+                    </strong>
 
                 </div>
 
 
-                <div class="table-container">
+                <div class="site-item">
 
-                    <table>
+                    <span>
+                        Alamat
+                    </span>
 
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Masuk</th>
-                                <th>Pulang</th>
-                                <th>Status</th>
-                                <th>Keterangan</th>
-                            </tr>
-                        </thead>
+                    <strong id="siteAddress">
+                        -
+                    </strong>
 
-                        <tbody id="attendanceTableBody">
+                </div>
 
-                            <tr>
-                                <td colspan="5">
-                                    Memuat data...
-                                </td>
-                            </tr>
 
-                        </tbody>
+                <div class="site-item">
 
-                    </table>
+                    <span>
+                        Radius
+                    </span>
+
+                    <strong id="siteRadius">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="site-item">
+
+                    <span>
+                        Jam Masuk
+                    </span>
+
+                    <strong id="siteJamMasuk">
+                        -
+                    </strong>
 
                 </div>
 
@@ -363,52 +198,528 @@
 
         </section>
 
+
+        <!-- =================================================
+             VERIFIKASI LOKASI
+             ================================================= -->
+
+        <section class="card location-card">
+
+            <div class="card-top">
+
+                <div class="card-heading">
+
+                    <div class="card-icon location-icon">
+                        📡
+                    </div>
+
+                    <div>
+
+                        <span>
+                            VERIFIKASI
+                        </span>
+
+                        <h2>
+                            Lokasi Kamu
+                        </h2>
+
+                        <p>
+                            Periksa jarak kamu dari lokasi kerja.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="checkLocationBtn"
+                    class="primary-btn"
+                >
+                    📍 Periksa Lokasi
+                </button>
+
+            </div>
+
+
+            <div
+                id="locationStatus"
+                class="status-box neutral"
+            >
+                Lokasi belum diperiksa.
+            </div>
+
+
+            <div
+                id="distanceStatus"
+                class="distance-box"
+            >
+                Jarak dari site: -
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ABSEN MASUK
+             ================================================= -->
+
+        <section class="card attendance-card check-in-card">
+
+            <div class="card-top">
+
+                <div class="card-heading">
+
+                    <div class="card-icon check-in-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <span>
+                            KEHADIRAN
+                        </span>
+
+                        <h2>
+                            Absen Masuk
+                        </h2>
+
+                        <p>
+                            Catat kehadiran saat mulai bekerja.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <span
+                    id="checkInStatus"
+                    class="status-pill neutral"
+                >
+                    Belum Absen
+                </span>
+
+            </div>
+
+
+            <div class="attendance-content">
+
+                <!-- FOTO -->
+
+                <div class="photo-section">
+
+                    <div
+                        id="checkInPhotoPreview"
+                        class="photo-preview"
+                    >
+
+                        <span>
+                            📷
+                        </span>
+
+                        <p>
+                            Foto belum dipilih
+                        </p>
+
+                    </div>
+
+
+                    <input
+                        type="file"
+                        id="checkInPhoto"
+                        accept="image/*"
+                        capture="user"
+                        hidden
+                    >
+
+
+                    <button
+                        type="button"
+                        id="checkInPhotoBtn"
+                        class="secondary-btn"
+                    >
+                        📷 Ambil Foto
+                    </button>
+
+                </div>
+
+
+                <!-- AKSI -->
+
+                <div class="attendance-action">
+
+                    <div class="time-box">
+
+                        <span>
+                            WAKTU
+                        </span>
+
+                        <strong id="checkInTime">
+                            --:--:--
+                        </strong>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="checkInBtn"
+                        class="success-btn"
+                        disabled
+                    >
+                        ✓ Absen Masuk
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ABSEN PULANG
+             ================================================= -->
+
+        <section class="card attendance-card check-out-card">
+
+            <div class="card-top">
+
+                <div class="card-heading">
+
+                    <div class="card-icon check-out-icon">
+                        →
+                    </div>
+
+                    <div>
+
+                        <span>
+                            KEHADIRAN
+                        </span>
+
+                        <h2>
+                            Absen Pulang
+                        </h2>
+
+                        <p>
+                            Catat kehadiran setelah pekerjaan selesai.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <span
+                    id="checkOutStatus"
+                    class="status-pill neutral"
+                >
+                    Belum Absen
+                </span>
+
+            </div>
+
+
+            <div class="attendance-content">
+
+                <!-- FOTO -->
+
+                <div class="photo-section">
+
+                    <div
+                        id="checkOutPhotoPreview"
+                        class="photo-preview"
+                    >
+
+                        <span>
+                            📷
+                        </span>
+
+                        <p>
+                            Foto belum dipilih
+                        </p>
+
+                    </div>
+
+
+                    <input
+                        type="file"
+                        id="checkOutPhoto"
+                        accept="image/*"
+                        capture="user"
+                        hidden
+                    >
+
+
+                    <button
+                        type="button"
+                        id="checkOutPhotoBtn"
+                        class="secondary-btn"
+                    >
+                        📷 Ambil Foto
+                    </button>
+
+                </div>
+
+
+                <!-- AKSI -->
+
+                <div class="attendance-action">
+
+                    <div class="time-box">
+
+                        <span>
+                            WAKTU
+                        </span>
+
+                        <strong id="checkOutTime">
+                            --:--:--
+                        </strong>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="checkOutBtn"
+                        class="danger-btn"
+                        disabled
+                    >
+                        → Absen Pulang
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             INSTRUKSI
+             ================================================= -->
+
+        <section
+            id="attendanceInstruction"
+            class="instruction-box"
+        >
+            💡 Periksa lokasi terlebih dahulu sebelum melakukan
+            absensi.
+        </section>
+
+
+        <!-- =================================================
+             RIWAYAT
+             ================================================= -->
+
+        <section class="card history-card">
+
+            <div class="card-top">
+
+                <div class="card-heading">
+
+                    <div class="card-icon history-icon">
+                        ▤
+                    </div>
+
+                    <div>
+
+                        <span>
+                            RIWAYAT
+                        </span>
+
+                        <h2>
+                            Riwayat Absensi
+                        </h2>
+
+                        <p>
+                            Lihat catatan kehadiran kamu.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <select id="historyFilter">
+
+                    <option value="ALL">
+                        Semua
+                    </option>
+
+                    <option value="HADIR">
+                        Hadir
+                    </option>
+
+                    <option value="TERLAMBAT">
+                        Terlambat
+                    </option>
+
+                    <option value="IZIN">
+                        Izin
+                    </option>
+
+                    <option value="CUTI">
+                        Cuti
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Tanggal
+                            </th>
+
+                            <th>
+                                Masuk
+                            </th>
+
+                            <th>
+                                Pulang
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Keterangan
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="attendanceTableBody">
+
+                        <tr>
+
+                            <td colspan="5">
+                                Memuat data...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FOOTER
+             ================================================= -->
+
+        <footer>
+
+            <span>
+                © <span id="currentYear"></span>
+                PT. Ardend Adhikara Pandita
+            </span>
+
+            <span>
+                Cleaning Service Management
+            </span>
+
+        </footer>
+
     </main>
 
-</div>
 
-<!-- MOBILE BOTTOM NAV -->
-<nav class="mobile-bottom-nav" aria-label="Navigasi karyawan">
+    <!-- =====================================================
+         MOBILE NAV
+         ===================================================== -->
 
-    <a href="dashboard-karyawan.html">
-        <span class="nav-icon">⌂</span>
-        <span>Dashboard</span>
-    </a>
+    <nav
+        class="mobile-nav"
+        aria-label="Navigasi karyawan"
+    >
 
-    <a href="absensi-karyawan.html" class="active">
-        <span class="nav-icon">◷</span>
-        <span>Absensi</span>
-    </a>
+        <a
+            href="absensi-karyawan.html"
+            class="mobile-nav-item active"
+        >
 
-    <a href="checklist-karyawan.html">
-        <span class="nav-icon">✓</span>
-        <span>Checklist</span>
-    </a>
+            <span class="mobile-icon">
+                ✓
+            </span>
 
-    <a href="laporan-karyawan.html">
-        <span class="nav-icon">▤</span>
-        <span>Laporan</span>
-    </a>
+            <span>
+                Absensi
+            </span>
 
-    <a href="profil-karyawan.html">
-        <span class="nav-icon">●</span>
-        <span>Profil</span>
-    </a>
-
-</nav>
-
-<!-- TOAST -->
-<div id="toast" class="toast"></div>
+        </a>
 
 
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <a
+            href="checklist-karyawan.html"
+            class="mobile-nav-item"
+        >
 
-<!-- CONFIG -->
-<script src="../supabase-config.js"></script>
+            <span class="mobile-icon">
+                ☑
+            </span>
 
-<!-- JS -->
-<script src="absensi-karyawan.js"></script>
+            <span>
+                Checklist
+            </span>
+
+        </a>
+
+
+        <a
+            href="laporan-karyawan.html"
+            class="mobile-nav-item"
+        >
+
+            <span class="mobile-icon">
+                ▤
+            </span>
+
+            <span>
+                Laporan
+            </span>
+
+        </a>
+
+    </nav>
+
+
+    <!-- =====================================================
+         TOAST
+         ===================================================== -->
+
+    <div
+        id="toast"
+        class="toast"
+    ></div>
+
+
+    <!-- =====================================================
+         SUPABASE
+         ===================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="../supabase-config.js"></script>
+
+    <script src="absensi-karyawan.js"></script>
 
 </body>
 </html>

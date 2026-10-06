@@ -1,283 +1,416 @@
+"use strict";
+
+/* =========================================================
+   ABSENSI KARYAWAN
+   PT. Ardend Adhikara Pandita
+   ========================================================= */
+
 const db = window.supabaseClient;
 
 let currentUser = null;
 let currentEmployee = null;
 let currentSite = null;
 let currentLocation = null;
+
 let checkInPhotoBase64 = null;
 let checkOutPhotoBase64 = null;
+
 let attendanceToday = null;
 
 
-// =====================================================
-// DOM READY
-// =====================================================
+/* =========================================================
+   DOM READY
+   ========================================================= */
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
+
     setupEvents();
+
     updateDate();
+
     startClock();
 
-    await initPage();
+    initPage();
+
 });
 
 
-// =====================================================
-// INITIALIZATION
-// =====================================================
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
 
 async function initPage() {
+
     try {
 
+        /* ================= SUPABASE ================= */
+
         if (!db) {
-            throw new Error("Supabase belum terhubung.");
-        }
 
-        const idKaryawan = sessionStorage.getItem("id_karyawan");
-        const role = sessionStorage.getItem("role");
+            showToast(
+                "Koneksi sistem tidak tersedia.",
+                "error"
+            );
 
-        if (!idKaryawan || role !== "KARYAWAN") {
-            window.location.href = "../index.html";
             return;
         }
 
-        currentUser = {
-            id_karyawan: idKaryawan
-        };
 
-        setText("employeeId", idKaryawan);
-        setText("topId", idKaryawan);
+        /* ================= LOGIN ================= */
 
-        await loadEmployee();
-        await loadSite();
+        const loginSuccess =
+            await loadLoginUser();
+
+
+        if (!loginSuccess) {
+            return;
+        }
+
+
+        /* ================= KARYAWAN ================= */
+
+        const employeeSuccess =
+            await loadEmployee();
+
+
+        if (!employeeSuccess) {
+            return;
+        }
+
+
+        /* ================= SITE ================= */
+
+        const siteSuccess =
+            await loadSite();
+
+
+        if (!siteSuccess) {
+            return;
+        }
+
+
+        /* ================= ABSENSI HARI INI ================= */
+
         await loadTodayAttendance();
+
+
+        /* ================= RIWAYAT ================= */
+
         await loadAttendanceHistory();
+
 
     } catch (error) {
 
-        console.error("Init error:", error);
+        console.error(
+            "Absensi Init Error:",
+            error
+        );
+
 
         showToast(
-            "Gagal memuat data absensi.",
+            "Gagal memuat halaman absensi.",
             "error"
         );
     }
 }
 
 
-// =====================================================
-// EVENT SETUP
-// =====================================================
+/* =========================================================
+   LOAD LOGIN USER
+   ========================================================= */
 
-function setupEvents() {
+async function loadLoginUser() {
 
-    // Cek lokasi
-    const checkLocationBtn =
-        document.getElementById("checkLocationBtn");
+    try {
 
-    if (checkLocationBtn) {
-        checkLocationBtn.addEventListener(
-            "click",
-            checkLocation
-        );
-    }
+        const {
+            data: authData,
+            error: authError
+        } = await db.auth.getUser();
 
 
-    // Foto masuk
-    const checkInPhotoBtn =
-        document.getElementById("checkInPhotoBtn");
+        /* ================= TIDAK LOGIN ================= */
 
-    const checkInPhoto =
-        document.getElementById("checkInPhoto");
+        if (
+            authError ||
+            !authData ||
+            !authData.user
+        ) {
 
-    if (checkInPhotoBtn && checkInPhoto) {
+            window.location.href =
+                "../index.html";
 
-        checkInPhotoBtn.addEventListener(
-            "click",
-            () => {
-                checkInPhoto.click();
-            }
-        );
-
-        checkInPhoto.addEventListener(
-            "change",
-            handleCheckInPhoto
-        );
-    }
+            return false;
+        }
 
 
-    // Foto pulang
-    const checkOutPhotoBtn =
-        document.getElementById("checkOutPhotoBtn");
-
-    const checkOutPhoto =
-        document.getElementById("checkOutPhoto");
-
-    if (checkOutPhotoBtn && checkOutPhoto) {
-
-        checkOutPhotoBtn.addEventListener(
-            "click",
-            () => {
-                checkOutPhoto.click();
-            }
-        );
-
-        checkOutPhoto.addEventListener(
-            "change",
-            handleCheckOutPhoto
-        );
-    }
+        currentUser =
+            authData.user;
 
 
-    // Absen masuk
-    const checkInBtn =
-        document.getElementById("checkInBtn");
+        /* ================= USERS ================= */
 
-    if (checkInBtn) {
-        checkInBtn.addEventListener(
-            "click",
-            checkIn
-        );
-    }
-
-
-    // Absen pulang
-    const checkOutBtn =
-        document.getElementById("checkOutBtn");
-
-    if (checkOutBtn) {
-        checkOutBtn.addEventListener(
-            "click",
-            checkOut
-        );
-    }
-
-
-    // Filter riwayat
-    const historyFilter =
-        document.getElementById("historyFilter");
-
-    if (historyFilter) {
-
-        historyFilter.addEventListener(
-            "change",
-            loadAttendanceHistory
-        );
-    }
-
-
-    // Logout
-    // Tidak error kalau tombol logout tidak ada di HTML
-    const logoutBtn =
-        document.getElementById("logoutBtn");
-
-    if (logoutBtn) {
-
-        logoutBtn.addEventListener(
-            "click",
-            logout
-        );
-    }
-
-
-    // Mobile menu
-    const mobileMenuBtn =
-        document.getElementById("mobileMenuBtn");
-
-    const sidebar =
-        document.querySelector(".sidebar");
-
-    if (mobileMenuBtn && sidebar) {
-
-        mobileMenuBtn.addEventListener(
-            "click",
-            () => {
-                sidebar.classList.toggle("show");
-            }
-        );
-    }
-}
-
-
-// =====================================================
-// LOAD EMPLOYEE
-// =====================================================
-
-async function loadEmployee() {
-
-    const idKaryawan =
-        currentUser.id_karyawan;
-
-    const { data, error } =
-        await db
-            .from("karyawan")
+        const {
+            data: userData,
+            error: userError
+        } = await db
+            .from("users")
             .select("*")
-            .eq("id_karyawan", idKaryawan)
+            .eq(
+                "auth_user_id",
+                currentUser.id
+            )
             .maybeSingle();
 
-    if (error) {
+
+        if (userError) {
+
+            console.error(
+                "Users Error:",
+                userError
+            );
+
+            showToast(
+                "Data akun tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!userData) {
+
+            showToast(
+                "Data akun tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        /* ================= STATUS ================= */
+
+        if (
+            userData.status &&
+            userData.status !== "AKTIF"
+        ) {
+
+            showToast(
+                "Akun kamu tidak aktif.",
+                "error"
+            );
+
+
+            await db.auth.signOut();
+
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "../index.html";
+
+            }, 1500);
+
+
+            return false;
+        }
+
+
+        /* ================= ROLE ================= */
+
+        if (
+            userData.role &&
+            userData.role !== "KARYAWAN"
+        ) {
+
+            showToast(
+                "Akun ini bukan akun karyawan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        /* ================= ID KARYAWAN ================= */
+
+        if (!userData.id_karyawan) {
+
+            showToast(
+                "Akun belum terhubung dengan data karyawan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        currentUser.profile =
+            userData;
+
+
+        return true;
+
+
+    } catch (error) {
 
         console.error(
-            "Error load employee:",
+            "loadLoginUser Error:",
             error
         );
 
-        throw error;
-    }
 
-    if (!data) {
-        throw new Error(
-            "Data karyawan tidak ditemukan."
+        showToast(
+            "Gagal memeriksa akun.",
+            "error"
         );
+
+
+        return false;
     }
-
-    currentEmployee = data;
-
-
-    setText(
-        "employeeId",
-        data.id_karyawan || "-"
-    );
-
-    setText(
-        "employeeName",
-        data.nama || "-"
-    );
-
-    setText(
-        "topNama",
-        data.nama || "Karyawan"
-    );
-
-    setText(
-        "topId",
-        data.id_karyawan || "-"
-    );
 }
 
 
-// =====================================================
-// LOAD SITE
-// =====================================================
+/* =========================================================
+   LOAD EMPLOYEE
+   ========================================================= */
+
+async function loadEmployee() {
+
+    try {
+
+        const employeeId =
+            currentUser?.profile?.id_karyawan;
+
+
+        if (!employeeId) {
+
+            showToast(
+                "ID karyawan tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        const {
+            data,
+            error
+        } = await db
+            .from("karyawan")
+            .select("*")
+            .eq(
+                "id_karyawan",
+                employeeId
+            )
+            .maybeSingle();
+
+
+        if (error) {
+
+            console.error(
+                "Karyawan Error:",
+                error
+            );
+
+            showToast(
+                "Data karyawan tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!data) {
+
+            showToast(
+                "Data karyawan tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        currentEmployee =
+            data;
+
+
+        /* ================= RENDER ================= */
+
+        setText(
+            "employeeId",
+            data.id_karyawan || "-"
+        );
+
+
+        setText(
+            "employeeName",
+            data.nama || "Karyawan"
+        );
+
+
+        setText(
+            "topNama",
+            data.nama || "Karyawan"
+        );
+
+
+        setText(
+            "topId",
+            data.id_karyawan || "-"
+        );
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "loadEmployee Error:",
+            error
+        );
+
+
+        showToast(
+            "Gagal memuat data karyawan.",
+            "error"
+        );
+
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   LOAD SITE
+   ========================================================= */
 
 async function loadSite() {
 
-    if (
-        !currentEmployee ||
-        !currentEmployee.id_site
-    ) {
+    try {
 
-        setText("siteName", "-");
-        setText("siteAddress", "-");
-        setText("siteRadius", "-");
-        setText("siteJamMasuk", "-");
+        if (
+            !currentEmployee ||
+            !currentEmployee.id_site
+        ) {
 
-        return;
-    }
+            renderEmptySite();
+
+            return false;
+        }
 
 
-    const { data, error } =
-        await db
+        const {
+            data,
+            error
+        } = await db
             .from("site")
             .select("*")
             .eq(
@@ -287,71 +420,141 @@ async function loadSite() {
             .maybeSingle();
 
 
-    if (error) {
+        if (error) {
+
+            console.error(
+                "Site Error:",
+                error
+            );
+
+            renderEmptySite();
+
+            showToast(
+                "Data site tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!data) {
+
+            renderEmptySite();
+
+            showToast(
+                "Data site tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        currentSite =
+            data;
+
+
+        /* ================= RENDER ================= */
+
+        setText(
+            "siteName",
+            data.nama_site || "-"
+        );
+
+
+        setText(
+            "siteAddress",
+            data.alamat || "-"
+        );
+
+
+        setText(
+            "siteRadius",
+            data.radius_meter
+                ? `${data.radius_meter} meter`
+                : "-"
+        );
+
+
+        setText(
+            "siteJamMasuk",
+            data.jam_masuk || "-"
+        );
+
+
+        return true;
+
+
+    } catch (error) {
 
         console.error(
-            "Error load site:",
+            "loadSite Error:",
             error
         );
 
-        throw error;
+
+        renderEmptySite();
+
+        return false;
     }
+}
 
 
-    if (!data) {
-        throw new Error(
-            "Data site tidak ditemukan."
-        );
-    }
+/* =========================================================
+   EMPTY SITE
+   ========================================================= */
 
-
-    currentSite = data;
-
+function renderEmptySite() {
 
     setText(
         "siteName",
-        data.nama_site || "-"
+        "Site belum tersedia"
     );
 
     setText(
         "siteAddress",
-        data.alamat || "-"
+        "-"
     );
 
     setText(
         "siteRadius",
-        data.radius_meter
-            ? `${data.radius_meter} meter`
-            : "-"
+        "-"
     );
 
     setText(
         "siteJamMasuk",
-        data.jam_masuk || "-"
+        "-"
     );
 }
 
 
-// =====================================================
-// LOAD TODAY ATTENDANCE
-// =====================================================
+/* =========================================================
+   LOAD TODAY ATTENDANCE
+   ========================================================= */
 
 async function loadTodayAttendance() {
 
-    if (!currentUser) return;
+    try {
+
+        if (!currentUser?.profile?.id_karyawan) {
+            return;
+        }
 
 
-    const today =
-        getTodayDate();
+        const today =
+            getTodayDate();
 
 
-    const { data, error } =
-        await db
+        const {
+            data,
+            error
+        } = await db
             .from("absensi")
             .select("*")
             .eq(
                 "id_karyawan",
-                currentUser.id_karyawan
+                currentUser.profile.id_karyawan
             )
             .eq(
                 "tanggal",
@@ -360,40 +563,62 @@ async function loadTodayAttendance() {
             .maybeSingle();
 
 
-    if (error) {
+        if (error) {
+
+            console.error(
+                "Today Attendance Error:",
+                error
+            );
+
+            return;
+        }
+
+
+        attendanceToday =
+            data || null;
+
+
+        updateAttendanceStatus();
+
+
+    } catch (error) {
 
         console.error(
-            "Error load today attendance:",
+            "loadTodayAttendance Error:",
             error
         );
-
-        return;
     }
-
-
-    attendanceToday = data;
-
-    updateAttendanceStatus();
 }
 
 
-// =====================================================
-// UPDATE ATTENDANCE STATUS
-// =====================================================
+/* =========================================================
+   UPDATE ATTENDANCE STATUS
+   ========================================================= */
 
 function updateAttendanceStatus() {
 
     const checkInBtn =
-        document.getElementById("checkInBtn");
+        document.getElementById(
+            "checkInBtn"
+        );
+
 
     const checkOutBtn =
-        document.getElementById("checkOutBtn");
+        document.getElementById(
+            "checkOutBtn"
+        );
+
 
     const checkInStatus =
-        document.getElementById("checkInStatus");
+        document.getElementById(
+            "checkInStatus"
+        );
+
 
     const checkOutStatus =
-        document.getElementById("checkOutStatus");
+        document.getElementById(
+            "checkOutStatus"
+        );
 
 
     if (
@@ -405,6 +630,8 @@ function updateAttendanceStatus() {
         return;
     }
 
+
+    /* ================= BELUM ADA ABSENSI ================= */
 
     if (!attendanceToday) {
 
@@ -423,14 +650,18 @@ function updateAttendanceStatus() {
 
 
         checkInBtn.disabled =
-            !currentLocation;
+            !isLocationValid();
+
 
         checkOutBtn.disabled =
             true;
 
+
         return;
     }
 
+
+    /* ================= ABSEN MASUK ================= */
 
     if (attendanceToday.jam_masuk) {
 
@@ -449,9 +680,24 @@ function updateAttendanceStatus() {
         );
 
 
-        checkInBtn.disabled = true;
+        checkInBtn.disabled =
+            true;
+
+    } else {
+
+        checkInStatus.textContent =
+            "Belum Absen";
+
+        checkInStatus.className =
+            "status-pill neutral";
+
+
+        checkInBtn.disabled =
+            !isLocationValid();
     }
 
+
+    /* ================= ABSEN PULANG ================= */
 
     if (attendanceToday.jam_pulang) {
 
@@ -470,21 +716,30 @@ function updateAttendanceStatus() {
         );
 
 
-        checkOutBtn.disabled = true;
+        checkOutBtn.disabled =
+            true;
 
-    } else if (
-        attendanceToday.jam_masuk
-    ) {
+    } else {
+
+        checkOutStatus.textContent =
+            "Belum Absen";
+
+        checkOutStatus.className =
+            "status-pill neutral";
+
 
         checkOutBtn.disabled =
-            !currentLocation;
+            !(
+                attendanceToday.jam_masuk &&
+                isLocationValid()
+            );
     }
 }
 
 
-// =====================================================
-// CHECK LOCATION
-// =====================================================
+/* =========================================================
+   CHECK LOCATION
+   ========================================================= */
 
 async function checkLocation() {
 
@@ -493,10 +748,12 @@ async function checkLocation() {
             "locationStatus"
         );
 
+
     const distanceStatus =
         document.getElementById(
             "distanceStatus"
         );
+
 
     const instruction =
         document.getElementById(
@@ -504,8 +761,18 @@ async function checkLocation() {
         );
 
 
-    if (!locationStatus) return;
+    const button =
+        document.getElementById(
+            "checkLocationBtn"
+        );
 
+
+    if (!locationStatus) {
+        return;
+    }
+
+
+    /* ================= GPS SUPPORT ================= */
 
     if (!navigator.geolocation) {
 
@@ -515,9 +782,22 @@ async function checkLocation() {
         locationStatus.className =
             "status-box error";
 
+
+        if (instruction) {
+
+            instruction.textContent =
+                "⚠️ Browser tidak mendukung pemeriksaan lokasi.";
+
+            instruction.className =
+                "instruction-box error";
+        }
+
+
         return;
     }
 
+
+    /* ================= SITE ================= */
 
     if (!currentSite) {
 
@@ -527,9 +807,12 @@ async function checkLocation() {
         locationStatus.className =
             "status-box error";
 
+
         return;
     }
 
+
+    /* ================= LOADING ================= */
 
     locationStatus.textContent =
         "Sedang mengambil lokasi...";
@@ -538,109 +821,41 @@ async function checkLocation() {
         "status-box neutral";
 
 
+    if (distanceStatus) {
+
+        distanceStatus.textContent =
+            "Menghitung jarak...";
+    }
+
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Memeriksa...";
+    }
+
+
+    /* ================= GET GPS ================= */
+
     navigator.geolocation.getCurrentPosition(
 
-        async position => {
+        position => {
 
-            const latitude =
-                position.coords.latitude;
-
-            const longitude =
-                position.coords.longitude;
+            processLocation(
+                position
+            );
 
 
-            currentLocation = {
-                latitude,
-                longitude
-            };
+            if (button) {
 
+                button.disabled =
+                    false;
 
-            const distance =
-                calculateDistance(
-                    latitude,
-                    longitude,
-                    Number(
-                        currentSite.latitude
-                    ),
-                    Number(
-                        currentSite.longitude
-                    )
-                );
-
-
-            const radius =
-                Number(
-                    currentSite.radius_meter || 0
-                );
-
-
-            if (distanceStatus) {
-
-                distanceStatus.textContent =
-                    `Jarak dari site: ${Math.round(
-                        distance
-                    )} meter`;
-            }
-
-
-            if (distance <= radius) {
-
-                locationStatus.textContent =
-                    "Lokasi valid. Anda berada di area site.";
-
-                locationStatus.className =
-                    "status-box success";
-
-
-                if (instruction) {
-
-                    instruction.textContent =
-                        "✅ Lokasi valid. Anda dapat melakukan absensi.";
-
-                    instruction.className =
-                        "instruction-box success";
-                }
-
-
-                enableAttendanceButtons();
-
-            } else {
-
-                locationStatus.textContent =
-                    "Anda berada di luar area site.";
-
-                locationStatus.className =
-                    "status-box error";
-
-
-                if (instruction) {
-
-                    instruction.textContent =
-                        "⚠️ Anda harus berada di dalam radius site untuk melakukan absensi.";
-
-                    instruction.className =
-                        "instruction-box error";
-                }
-
-
-                const checkInBtn =
-                    document.getElementById(
-                        "checkInBtn"
-                    );
-
-                const checkOutBtn =
-                    document.getElementById(
-                        "checkOutBtn"
-                    );
-
-
-                if (checkInBtn) {
-                    checkInBtn.disabled = true;
-                }
-
-                if (checkOutBtn) {
-                    checkOutBtn.disabled = true;
-                }
+                button.textContent =
+                    "📍 Periksa Lokasi";
             }
         },
 
@@ -648,7 +863,7 @@ async function checkLocation() {
         error => {
 
             console.error(
-                "GPS error:",
+                "GPS Error:",
                 error
             );
 
@@ -658,18 +873,21 @@ async function checkLocation() {
 
 
             if (error.code === 1) {
+
                 message =
                     "Izin lokasi ditolak oleh browser.";
             }
 
 
             if (error.code === 2) {
+
                 message =
                     "Lokasi tidak tersedia.";
             }
 
 
             if (error.code === 3) {
+
                 message =
                     "Waktu mengambil lokasi habis.";
             }
@@ -680,6 +898,40 @@ async function checkLocation() {
 
             locationStatus.className =
                 "status-box error";
+
+
+            if (distanceStatus) {
+
+                distanceStatus.textContent =
+                    "Jarak dari site: -";
+            }
+
+
+            if (instruction) {
+
+                instruction.textContent =
+                    "⚠️ Periksa izin lokasi browser lalu coba lagi.";
+
+                instruction.className =
+                    "instruction-box error";
+            }
+
+
+            currentLocation =
+                null;
+
+
+            updateAttendanceStatus();
+
+
+            if (button) {
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "📍 Periksa Lokasi";
+            }
         },
 
 
@@ -688,62 +940,365 @@ async function checkLocation() {
             timeout: 15000,
             maximumAge: 0
         }
+
     );
 }
 
 
-// =====================================================
-// ENABLE ATTENDANCE BUTTONS
-// =====================================================
+/* =========================================================
+   PROCESS LOCATION
+   ========================================================= */
 
-function enableAttendanceButtons() {
+function processLocation(position) {
 
-    const checkInBtn =
-        document.getElementById("checkInBtn");
-
-    const checkOutBtn =
-        document.getElementById("checkOutBtn");
-
-
-    if (!checkInBtn || !checkOutBtn) {
-        return;
-    }
+    const locationStatus =
+        document.getElementById(
+            "locationStatus"
+        );
 
 
-    if (!attendanceToday) {
-
-        checkInBtn.disabled = false;
-        checkOutBtn.disabled = true;
-
-        return;
-    }
+    const distanceStatus =
+        document.getElementById(
+            "distanceStatus"
+        );
 
 
-    if (!attendanceToday.jam_masuk) {
-        checkInBtn.disabled = false;
-    }
+    const instruction =
+        document.getElementById(
+            "attendanceInstruction"
+        );
 
+
+    const latitude =
+        Number(
+            position.coords.latitude
+        );
+
+
+    const longitude =
+        Number(
+            position.coords.longitude
+        );
+
+
+    /* ================= SIMPAN LOKASI ================= */
+
+    currentLocation = {
+
+        latitude:
+            latitude,
+
+        longitude:
+            longitude
+
+    };
+
+
+    /* ================= SITE COORDINATE ================= */
+
+    const siteLatitude =
+        Number(
+            currentSite.latitude
+        );
+
+
+    const siteLongitude =
+        Number(
+            currentSite.longitude
+        );
+
+
+    const radius =
+        Number(
+            currentSite.radius_meter || 0
+        );
+
+
+    /* ================= VALIDASI KOORDINAT ================= */
 
     if (
-        attendanceToday.jam_masuk &&
-        !attendanceToday.jam_pulang
+        !Number.isFinite(siteLatitude) ||
+        !Number.isFinite(siteLongitude)
     ) {
 
-        checkOutBtn.disabled = false;
+        currentLocation =
+            null;
+
+
+        locationStatus.textContent =
+            "Koordinat site belum tersedia.";
+
+        locationStatus.className =
+            "status-box error";
+
+
+        if (instruction) {
+
+            instruction.textContent =
+                "⚠️ Koordinat site belum diatur di database.";
+
+            instruction.className =
+                "instruction-box error";
+        }
+
+
+        updateAttendanceStatus();
+
+        return;
+    }
+
+
+    /* ================= HITUNG JARAK ================= */
+
+    const distance =
+        calculateDistance(
+            latitude,
+            longitude,
+            siteLatitude,
+            siteLongitude
+        );
+
+
+    if (distanceStatus) {
+
+        distanceStatus.textContent =
+            `Jarak dari site: ${Math.round(
+                distance
+            )} meter`;
+    }
+
+
+    /* ================= DALAM RADIUS ================= */
+
+    if (distance <= radius) {
+
+        currentLocation.valid =
+            true;
+
+
+        locationStatus.textContent =
+            "Lokasi valid. Kamu berada di area site.";
+
+        locationStatus.className =
+            "status-box success";
+
+
+        if (instruction) {
+
+            instruction.textContent =
+                "✅ Lokasi valid. Kamu dapat melakukan absensi.";
+
+            instruction.className =
+                "instruction-box success";
+        }
+
+
+        updateAttendanceStatus();
+
+
+        return;
+    }
+
+
+    /* ================= LUAR RADIUS ================= */
+
+    currentLocation.valid =
+        false;
+
+
+    locationStatus.textContent =
+        "Kamu berada di luar area site.";
+
+    locationStatus.className =
+        "status-box error";
+
+
+    if (instruction) {
+
+        instruction.textContent =
+            "⚠️ Kamu harus berada di dalam radius site untuk melakukan absensi.";
+
+        instruction.className =
+            "instruction-box error";
+    }
+
+
+    updateAttendanceStatus();
+}
+
+
+/* =========================================================
+   LOCATION VALID
+   ========================================================= */
+
+function isLocationValid() {
+
+    return Boolean(
+        currentLocation &&
+        currentLocation.valid === true
+    );
+}
+
+
+/* =========================================================
+   ENABLE PHOTO BUTTON
+   ========================================================= */
+
+function setupPhotoButton(
+    buttonId,
+    inputId,
+    handler
+) {
+
+    const button =
+        document.getElementById(
+            buttonId
+        );
+
+
+    const input =
+        document.getElementById(
+            inputId
+        );
+
+
+    if (!button || !input) {
+        return;
+    }
+
+
+    button.addEventListener(
+        "click",
+        () => {
+            input.click();
+        }
+    );
+
+
+    input.addEventListener(
+        "change",
+        handler
+    );
+}
+
+
+/* =========================================================
+   EVENT SETUP
+   ========================================================= */
+
+function setupEvents() {
+
+    /* ================= LOCATION ================= */
+
+    const locationButton =
+        document.getElementById(
+            "checkLocationBtn"
+        );
+
+
+    if (locationButton) {
+
+        locationButton.addEventListener(
+            "click",
+            checkLocation
+        );
+    }
+
+
+    /* ================= FOTO MASUK ================= */
+
+    setupPhotoButton(
+        "checkInPhotoBtn",
+        "checkInPhoto",
+        handleCheckInPhoto
+    );
+
+
+    /* ================= FOTO PULANG ================= */
+
+    setupPhotoButton(
+        "checkOutPhotoBtn",
+        "checkOutPhoto",
+        handleCheckOutPhoto
+    );
+
+
+    /* ================= ABSEN MASUK ================= */
+
+    const checkInButton =
+        document.getElementById(
+            "checkInBtn"
+        );
+
+
+    if (checkInButton) {
+
+        checkInButton.addEventListener(
+            "click",
+            checkIn
+        );
+    }
+
+
+    /* ================= ABSEN PULANG ================= */
+
+    const checkOutButton =
+        document.getElementById(
+            "checkOutBtn"
+        );
+
+
+    if (checkOutButton) {
+
+        checkOutButton.addEventListener(
+            "click",
+            checkOut
+        );
+    }
+
+
+    /* ================= FILTER ================= */
+
+    const filter =
+        document.getElementById(
+            "historyFilter"
+        );
+
+
+    if (filter) {
+
+        filter.addEventListener(
+            "change",
+            loadAttendanceHistory
+        );
     }
 }
 
 
-// =====================================================
-// FOTO ABSEN MASUK
-// =====================================================
+/* =========================================================
+   FOTO MASUK
+   ========================================================= */
 
 function handleCheckInPhoto(event) {
 
     const file =
-        event.target.files[0];
+        event.target.files?.[0];
 
-    if (!file) return;
+
+    if (!file) {
+        return;
+    }
+
+
+    if (!file.type.startsWith("image/")) {
+
+        showToast(
+            "File yang dipilih harus berupa gambar.",
+            "error"
+        );
+
+        return;
+    }
 
 
     convertImageToBase64(
@@ -762,24 +1317,50 @@ function handleCheckInPhoto(event) {
 
             if (preview) {
 
-                preview.innerHTML =
-                    `<img src="${base64}" alt="Foto masuk">`;
+                preview.innerHTML = `
+
+                    <img
+                        src="${base64}"
+                        alt="Foto absen masuk"
+                    >
+
+                `;
             }
+
+
+            showToast(
+                "Foto absen masuk siap digunakan.",
+                "success"
+            );
         }
     );
 }
 
 
-// =====================================================
-// FOTO ABSEN PULANG
-// =====================================================
+/* =========================================================
+   FOTO PULANG
+   ========================================================= */
 
 function handleCheckOutPhoto(event) {
 
     const file =
-        event.target.files[0];
+        event.target.files?.[0];
 
-    if (!file) return;
+
+    if (!file) {
+        return;
+    }
+
+
+    if (!file.type.startsWith("image/")) {
+
+        showToast(
+            "File yang dipilih harus berupa gambar.",
+            "error"
+        );
+
+        return;
+    }
 
 
     convertImageToBase64(
@@ -798,17 +1379,29 @@ function handleCheckOutPhoto(event) {
 
             if (preview) {
 
-                preview.innerHTML =
-                    `<img src="${base64}" alt="Foto pulang">`;
+                preview.innerHTML = `
+
+                    <img
+                        src="${base64}"
+                        alt="Foto absen pulang"
+                    >
+
+                `;
             }
+
+
+            showToast(
+                "Foto absen pulang siap digunakan.",
+                "success"
+            );
         }
     );
 }
 
 
-// =====================================================
-// CONVERT IMAGE
-// =====================================================
+/* =========================================================
+   CONVERT IMAGE
+   ========================================================= */
 
 function convertImageToBase64(
     file,
@@ -820,7 +1413,7 @@ function convertImageToBase64(
 
 
     reader.onload =
-        function(event) {
+        event => {
 
             callback(
                 event.target.result
@@ -829,7 +1422,7 @@ function convertImageToBase64(
 
 
     reader.onerror =
-        function() {
+        () => {
 
             showToast(
                 "Gagal membaca foto.",
@@ -842,13 +1435,13 @@ function convertImageToBase64(
 }
 
 
-// =====================================================
-// ABSEN MASUK
-// =====================================================
+/* =========================================================
+   ABSEN MASUK
+   ========================================================= */
 
 async function checkIn() {
 
-    if (!currentLocation) {
+    if (!isLocationValid()) {
 
         showToast(
             "Periksa lokasi terlebih dahulu.",
@@ -876,7 +1469,7 @@ async function checkIn() {
     ) {
 
         showToast(
-            "Anda sudah melakukan absen masuk.",
+            "Kamu sudah melakukan absen masuk.",
             "error"
         );
 
@@ -890,10 +1483,14 @@ async function checkIn() {
         );
 
 
-    if (!button) return;
+    if (!button) {
+        return;
+    }
 
 
-    button.disabled = true;
+    button.disabled =
+        true;
+
     button.textContent =
         "Menyimpan...";
 
@@ -911,7 +1508,8 @@ async function checkIn() {
 
 
         const idAbsensi =
-            "ABS" + Date.now();
+            "ABS" +
+            Date.now();
 
 
         const data = {
@@ -920,7 +1518,7 @@ async function checkIn() {
                 idAbsensi,
 
             id_karyawan:
-                currentUser.id_karyawan,
+                currentUser.profile.id_karyawan,
 
             id_site:
                 currentEmployee.id_site,
@@ -975,7 +1573,7 @@ async function checkIn() {
         if (error) {
 
             console.error(
-                "Error absen masuk:",
+                "Check In Error:",
                 error
             );
 
@@ -987,32 +1585,33 @@ async function checkIn() {
             insertedData;
 
 
+        checkInPhotoBase64 =
+            null;
+
+
+        resetPhotoPreview(
+            "checkInPhotoPreview"
+        );
+
+
         showToast(
             "Absen masuk berhasil disimpan.",
             "success"
         );
 
 
-        setText(
-            "checkInTime",
-            formatTime(
-                insertedData.jam_masuk
-            )
-        );
-
-
-        checkInPhotoBase64 =
-            null;
-
-
         updateAttendanceStatus();
+
 
         await loadAttendanceHistory();
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "checkIn Error:",
+            error
+        );
 
 
         showToast(
@@ -1022,22 +1621,24 @@ async function checkIn() {
         );
 
 
-        button.disabled = false;
+        button.disabled =
+            false;
+
+    } finally {
+
+        button.textContent =
+            "✓ Absen Masuk";
     }
-
-
-    button.textContent =
-        "🟢 Absen Masuk";
 }
 
 
-// =====================================================
-// ABSEN PULANG
-// =====================================================
+/* =========================================================
+   ABSEN PULANG
+   ========================================================= */
 
 async function checkOut() {
 
-    if (!currentLocation) {
+    if (!isLocationValid()) {
 
         showToast(
             "Periksa lokasi terlebih dahulu.",
@@ -1065,7 +1666,7 @@ async function checkOut() {
     ) {
 
         showToast(
-            "Anda belum melakukan absen masuk.",
+            "Kamu belum melakukan absen masuk.",
             "error"
         );
 
@@ -1076,7 +1677,7 @@ async function checkOut() {
     if (attendanceToday.jam_pulang) {
 
         showToast(
-            "Anda sudah melakukan absen pulang.",
+            "Kamu sudah melakukan absen pulang.",
             "error"
         );
 
@@ -1090,10 +1691,13 @@ async function checkOut() {
         );
 
 
-    if (!button) return;
+    if (!button) {
+        return;
+    }
 
 
-    button.disabled = true;
+    button.disabled =
+        true;
 
     button.textContent =
         "Menyimpan...";
@@ -1140,7 +1744,7 @@ async function checkOut() {
         if (error) {
 
             console.error(
-                "Error absen pulang:",
+                "Check Out Error:",
                 error
             );
 
@@ -1152,32 +1756,33 @@ async function checkOut() {
             data;
 
 
+        checkOutPhotoBase64 =
+            null;
+
+
+        resetPhotoPreview(
+            "checkOutPhotoPreview"
+        );
+
+
         showToast(
             "Absen pulang berhasil disimpan.",
             "success"
         );
 
 
-        setText(
-            "checkOutTime",
-            formatTime(
-                data.jam_pulang
-            )
-        );
-
-
-        checkOutPhotoBase64 =
-            null;
-
-
         updateAttendanceStatus();
+
 
         await loadAttendanceHistory();
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "checkOut Error:",
+            error
+        );
 
 
         showToast(
@@ -1187,20 +1792,57 @@ async function checkOut() {
         );
 
 
-        button.disabled = false;
+        button.disabled =
+            false;
+
+    } finally {
+
+        button.textContent =
+            "→ Absen Pulang";
     }
-
-
-    button.textContent =
-        "🔴 Absen Pulang";
 }
 
 
-// =====================================================
-// ATTENDANCE STATUS
-// =====================================================
+/* =========================================================
+   RESET PHOTO PREVIEW
+   ========================================================= */
 
-function calculateAttendanceStatus(date) {
+function resetPhotoPreview(
+    elementId
+) {
+
+    const preview =
+        document.getElementById(
+            elementId
+        );
+
+
+    if (!preview) {
+        return;
+    }
+
+
+    preview.innerHTML = `
+
+        <span>
+            📷
+        </span>
+
+        <p>
+            Foto belum dipilih
+        </p>
+
+    `;
+}
+
+
+/* =========================================================
+   ATTENDANCE STATUS
+   ========================================================= */
+
+function calculateAttendanceStatus(
+    date
+) {
 
     if (
         !currentSite ||
@@ -1211,16 +1853,15 @@ function calculateAttendanceStatus(date) {
     }
 
 
-    const batas =
-        currentSite.batas_terlambat;
-
-
     const parts =
-        batas.split(":");
+        String(
+            currentSite.batas_terlambat
+        ).split(":");
 
 
     const batasHour =
         Number(parts[0]);
+
 
     const batasMinute =
         Number(parts[1]);
@@ -1228,6 +1869,7 @@ function calculateAttendanceStatus(date) {
 
     const currentHour =
         date.getHours();
+
 
     const currentMinute =
         date.getMinutes();
@@ -1249,9 +1891,9 @@ function calculateAttendanceStatus(date) {
 }
 
 
-// =====================================================
-// ATTENDANCE HISTORY
-// =====================================================
+/* =========================================================
+   LOAD ATTENDANCE HISTORY
+   ========================================================= */
 
 async function loadAttendanceHistory() {
 
@@ -1260,15 +1902,19 @@ async function loadAttendanceHistory() {
             "attendanceTableBody"
         );
 
+
+    if (
+        !tbody ||
+        !currentUser?.profile?.id_karyawan
+    ) {
+        return;
+    }
+
+
     const filterElement =
         document.getElementById(
             "historyFilter"
         );
-
-
-    if (!tbody || !currentUser) {
-        return;
-    }
 
 
     const filter =
@@ -1278,11 +1924,13 @@ async function loadAttendanceHistory() {
 
 
     tbody.innerHTML = `
+
         <tr>
             <td colspan="5">
                 Memuat data...
             </td>
         </tr>
+
     `;
 
 
@@ -1294,7 +1942,7 @@ async function loadAttendanceHistory() {
                 .select("*")
                 .eq(
                     "id_karyawan",
-                    currentUser.id_karyawan
+                    currentUser.profile.id_karyawan
                 )
                 .order(
                     "tanggal",
@@ -1323,7 +1971,7 @@ async function loadAttendanceHistory() {
         if (error) {
 
             console.error(
-                "Error history:",
+                "History Error:",
                 error
             );
 
@@ -1337,102 +1985,127 @@ async function loadAttendanceHistory() {
         ) {
 
             tbody.innerHTML = `
+
                 <tr>
                     <td colspan="5">
                         Belum ada riwayat absensi.
                     </td>
                 </tr>
+
             `;
 
             return;
         }
 
 
-        tbody.innerHTML = "";
+        tbody.innerHTML =
+            "";
 
 
-        data.forEach(item => {
+        data.forEach(
+            item => {
 
-            const row =
-                document.createElement(
-                    "tr"
-                );
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
 
 
-            row.innerHTML = `
+                const status =
+                    item.status || "-";
 
-                <td>
-                    ${formatDate(
-                        item.tanggal
-                    )}
-                </td>
 
-                <td>
-                    ${
-                        item.jam_masuk
-                            ? formatTime(
-                                item.jam_masuk
-                            )
-                            : "-"
-                    }
-                </td>
+                const statusClass =
+                    getStatusClass(
+                        status
+                    );
 
-                <td>
-                    ${
-                        item.jam_pulang
-                            ? formatTime(
-                                item.jam_pulang
-                            )
-                            : "-"
-                    }
-                </td>
 
-                <td>
-                    <span class="status-pill ${getStatusClass(
-                        item.status
-                    )}">
+                row.innerHTML = `
+
+                    <td>
+                        ${formatDate(
+                            item.tanggal
+                        )}
+                    </td>
+
+                    <td>
                         ${
-                            item.status || "-"
+                            item.jam_masuk
+                                ? formatTime(
+                                    item.jam_masuk
+                                )
+                                : "-"
                         }
-                    </span>
-                </td>
+                    </td>
 
-                <td>
-                    ${
-                        item.keterangan || "-"
-                    }
-                </td>
+                    <td>
+                        ${
+                            item.jam_pulang
+                                ? formatTime(
+                                    item.jam_pulang
+                                )
+                                : "-"
+                        }
+                    </td>
 
-            `;
+                    <td>
+                        <span
+                            class="status-pill ${statusClass}"
+                        >
+                            ${status}
+                        </span>
+                    </td>
+
+                    <td>
+                        ${
+                            item.keterangan ||
+                            "-"
+                        }
+                    </td>
+
+                `;
 
 
-            tbody.appendChild(row);
-        });
+                tbody.appendChild(
+                    row
+                );
+            }
+        );
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "loadAttendanceHistory Error:",
+            error
+        );
 
 
         tbody.innerHTML = `
+
             <tr>
                 <td colspan="5">
-                    Gagal memuat riwayat.
+                    Gagal memuat riwayat absensi.
                 </td>
             </tr>
+
         `;
     }
 }
 
 
-// =====================================================
-// STATUS CLASS
-// =====================================================
+/* =========================================================
+   STATUS CLASS
+   ========================================================= */
 
-function getStatusClass(status) {
+function getStatusClass(
+    status
+) {
 
-    switch (status) {
+    switch (
+        String(status).toUpperCase()
+    ) {
 
         case "HADIR":
             return "success";
@@ -1452,9 +2125,9 @@ function getStatusClass(status) {
 }
 
 
-// =====================================================
-// DISTANCE
-// =====================================================
+/* =========================================================
+   DISTANCE
+   ========================================================= */
 
 function calculateDistance(
     lat1,
@@ -1486,6 +2159,7 @@ function calculateDistance(
         Math.cos(
             toRadians(lat1)
         ) *
+
         Math.cos(
             toRadians(lat2)
         ) *
@@ -1506,17 +2180,21 @@ function calculateDistance(
 }
 
 
-function toRadians(degrees) {
+function toRadians(
+    degrees
+) {
 
-    return degrees *
+    return (
+        degrees *
         Math.PI /
-        180;
+        180
+    );
 }
 
 
-// =====================================================
-// DATE
-// =====================================================
+/* =========================================================
+   TODAY
+   ========================================================= */
 
 function getTodayDate() {
 
@@ -1531,24 +2209,32 @@ function getTodayDate() {
     const month =
         String(
             now.getMonth() + 1
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
 
     const day =
         String(
             now.getDate()
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
 
     return `${year}-${month}-${day}`;
 }
 
 
-// =====================================================
-// FORMAT DATE
-// =====================================================
+/* =========================================================
+   FORMAT DATE
+   ========================================================= */
 
-function formatDate(dateString) {
+function formatDate(
+    dateString
+) {
 
     if (!dateString) {
         return "-";
@@ -1557,9 +2243,18 @@ function formatDate(dateString) {
 
     const date =
         new Date(
-            dateString +
-            "T00:00:00"
+            `${dateString}T00:00:00`
         );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return dateString;
+    }
 
 
     return date.toLocaleDateString(
@@ -1573,11 +2268,13 @@ function formatDate(dateString) {
 }
 
 
-// =====================================================
-// FORMAT TIME
-// =====================================================
+/* =========================================================
+   FORMAT TIME
+   ========================================================= */
 
-function formatTime(timeString) {
+function formatTime(
+    timeString
+) {
 
     if (!timeString) {
         return "-";
@@ -1586,13 +2283,16 @@ function formatTime(timeString) {
 
     return String(
         timeString
-    ).substring(0, 8);
+    ).substring(
+        0,
+        8
+    );
 }
 
 
-// =====================================================
-// UPDATE DATE
-// =====================================================
+/* =========================================================
+   DATE DISPLAY
+   ========================================================= */
 
 function updateDate() {
 
@@ -1624,9 +2324,9 @@ function updateDate() {
 }
 
 
-// =====================================================
-// CLOCK
-// =====================================================
+/* =========================================================
+   CLOCK
+   ========================================================= */
 
 function startClock() {
 
@@ -1669,6 +2369,8 @@ function updateClock() {
         );
 
 
+    /* ================= JAM MASUK ================= */
+
     if (
         checkInTime &&
         (
@@ -1681,6 +2383,8 @@ function updateClock() {
             time;
     }
 
+
+    /* ================= JAM PULANG ================= */
 
     if (
         checkOutTime &&
@@ -1695,9 +2399,9 @@ function updateClock() {
 }
 
 
-// =====================================================
-// TOAST
-// =====================================================
+/* =========================================================
+   TOAST
+   ========================================================= */
 
 function showToast(
     message,
@@ -1728,32 +2432,22 @@ function showToast(
     );
 
 
-    setTimeout(() => {
+    setTimeout(
+        () => {
 
-        toast.classList.remove(
-            "show"
-        );
+            toast.classList.remove(
+                "show"
+            );
 
-    }, 3000);
+        },
+        3000
+    );
 }
 
 
-// =====================================================
-// LOGOUT
-// =====================================================
-
-function logout() {
-
-    sessionStorage.clear();
-
-    window.location.href =
-        "../index.html";
-}
-
-
-// =====================================================
-// HELPER TEXT
-// =====================================================
+/* =========================================================
+   HELPER TEXT
+   ========================================================= */
 
 function setText(
     elementId,

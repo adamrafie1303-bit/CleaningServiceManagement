@@ -1,680 +1,704 @@
+"use strict";
+
+/* =========================================================
+   LAPORAN KARYAWAN
+   PT. Ardend Adhikara Pandita
+   ========================================================= */
+
 const db = window.supabaseClient;
 
 let currentUser = null;
 let currentEmployee = null;
 let currentSite = null;
-let reports = [];
+let reportData = [];
 
 
-// =====================================================
-// DOM READY
-// =====================================================
+/* =========================================================
+   INIT
+   ========================================================= */
 
-document.addEventListener("DOMContentLoaded", async () => {
-    await initLaporan();
+document.addEventListener("DOMContentLoaded", function () {
+    setupEvents();
+    initPage();
 });
 
 
-// =====================================================
-// INIT
-// =====================================================
-
-async function initLaporan() {
+async function initPage() {
     try {
-
         if (!db) {
-            throw new Error("Supabase belum terhubung.");
-        }
+            showToast(
+                "Koneksi sistem tidak tersedia.",
+                "error"
+            );
 
-        const sessionValid = checkSession();
-
-        if (!sessionValid) {
             return;
         }
 
-        await loadCurrentUser();
-        await loadEmployee();
-        await loadSite();
-        await loadReports();
+        const userLoaded =
+            await loadLoginUser();
 
-        setupEvents();
-        renderPage();
+        if (!userLoaded) {
+            return;
+        }
+
+        const employeeLoaded =
+            await loadEmployee();
+
+        if (!employeeLoaded) {
+            return;
+        }
+
+        const siteLoaded =
+            await loadSite();
+
+        if (!siteLoaded) {
+            return;
+        }
+
+        setDefaultFilters();
+
+        await loadReports();
 
     } catch (error) {
 
         console.error(
-            "Gagal memuat halaman laporan:",
+            "Laporan Init Error:",
             error
         );
 
-        showMessage(
-            "Gagal memuat data laporan. " +
-            (error.message || ""),
+        showToast(
+            "Gagal memuat halaman laporan.",
             "error"
         );
     }
 }
 
 
-// =====================================================
-// SESSION
-// =====================================================
+/* =========================================================
+   LOAD LOGIN USER
+   ========================================================= */
 
-function checkSession() {
+async function loadLoginUser() {
+    try {
 
-    const idUser =
-        sessionStorage.getItem("id_user");
+        const authResult =
+            await db.auth.getUser();
 
-    const username =
-        sessionStorage.getItem("username");
+        const authData =
+            authResult.data;
 
-    const role =
-        sessionStorage.getItem("role");
-
-    const idKaryawan =
-        sessionStorage.getItem("id_karyawan");
+        const authError =
+            authResult.error;
 
 
-    if (
-        !idUser ||
-        !username ||
-        !role ||
-        !idKaryawan
-    ) {
+        if (
+            authError ||
+            !authData ||
+            !authData.user
+        ) {
 
-        window.location.href =
-            "../index.html";
+            window.location.href =
+                "../index.html";
 
-        return false;
-    }
-
-
-    if (role !== "KARYAWAN") {
-
-        window.location.href =
-            "../index.html";
-
-        return false;
-    }
+            return false;
+        }
 
 
-    return true;
-}
+        currentUser =
+            authData.user;
 
 
-// =====================================================
-// LOAD CURRENT USER
-// =====================================================
-
-async function loadCurrentUser() {
-
-    const idUser =
-        sessionStorage.getItem("id_user");
-
-
-    const {
-        data,
-        error
-    } = await db
-        .from("users")
-        .select("*")
-        .eq("id_user", idUser)
-        .maybeSingle();
+        const userResult =
+            await db
+                .from("users")
+                .select("*")
+                .eq(
+                    "auth_user_id",
+                    currentUser.id
+                )
+                .maybeSingle();
 
 
-    if (error) {
+        const userData =
+            userResult.data;
+
+        const userError =
+            userResult.error;
+
+
+        if (userError) {
+
+            console.error(
+                "Users Error:",
+                userError
+            );
+
+            showToast(
+                "Data akun tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!userData) {
+
+            showToast(
+                "Data akun tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (
+            userData.status &&
+            userData.status !== "AKTIF"
+        ) {
+
+            showToast(
+                "Akun kamu tidak aktif.",
+                "error"
+            );
+
+            await db.auth.signOut();
+
+            setTimeout(
+                function () {
+
+                    window.location.href =
+                        "../index.html";
+
+                },
+                1500
+            );
+
+            return false;
+        }
+
+
+        if (
+            userData.role &&
+            userData.role !== "KARYAWAN"
+        ) {
+
+            showToast(
+                "Akun ini bukan akun karyawan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!userData.id_karyawan) {
+
+            showToast(
+                "Akun belum terhubung dengan data karyawan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        currentUser.profile =
+            userData;
+
+
+        return true;
+
+    } catch (error) {
 
         console.error(
-            "Error load user:",
+            "loadLoginUser Error:",
             error
         );
 
-        throw error;
-    }
-
-
-    if (!data) {
-
-        throw new Error(
-            "Data user tidak ditemukan."
+        showToast(
+            "Gagal memeriksa akun.",
+            "error"
         );
+
+        return false;
     }
-
-
-    currentUser = data;
 }
 
 
-// =====================================================
-// LOAD EMPLOYEE
-// =====================================================
+/* =========================================================
+   LOAD EMPLOYEE
+   ========================================================= */
 
 async function loadEmployee() {
 
-    const idKaryawan =
-        sessionStorage.getItem(
-            "id_karyawan"
-        );
-
-
-    const {
-        data,
-        error
-    } = await db
-        .from("karyawan")
-        .select("*")
-        .eq(
-            "id_karyawan",
-            idKaryawan
-        )
-        .maybeSingle();
-
-
-    if (error) {
-
-        console.error(
-            "Error load employee:",
-            error
-        );
-
-        throw error;
-    }
-
-
-    if (!data) {
-
-        throw new Error(
-            "Data karyawan tidak ditemukan."
-        );
-    }
-
-
-    currentEmployee = data;
-}
-
-
-// =====================================================
-// LOAD SITE
-// =====================================================
-
-async function loadSite() {
-
-    if (
-        !currentEmployee ||
-        !currentEmployee.id_site
-    ) {
-
-        currentSite = null;
-
-        return;
-    }
-
-
-    const {
-        data,
-        error
-    } = await db
-        .from("site")
-        .select("*")
-        .eq(
-            "id_site",
-            currentEmployee.id_site
-        )
-        .maybeSingle();
-
-
-    if (error) {
-
-        console.error(
-            "Error load site:",
-            error
-        );
-
-        throw error;
-    }
-
-
-    currentSite = data || null;
-}
-
-
-// =====================================================
-// LOAD REPORTS
-// =====================================================
-
-async function loadReports() {
-
-    if (!currentEmployee) {
-        reports = [];
-        return;
-    }
-
-
-    const {
-        data,
-        error
-    } = await db
-        .from("laporan")
-        .select("*")
-        .eq(
-            "id_karyawan",
-            currentEmployee.id_karyawan
-        )
-        .order(
-            "tanggal",
-            {
-                ascending: false
-            }
-        )
-        .order(
-            "waktu",
-            {
-                ascending: false
-            }
-        )
-        .limit(200);
-
-
-    if (error) {
-
-        console.error(
-            "Error load laporan:",
-            error
-        );
-
-        throw error;
-    }
-
-
-    reports = data || [];
-}
-
-
-// =====================================================
-// EVENTS
-// =====================================================
-
-function setupEvents() {
-
-    // FORM LAPORAN
-    const reportForm =
-        document.getElementById(
-            "reportForm"
-        );
-
-    if (reportForm) {
-
-        reportForm.addEventListener(
-            "submit",
-            submitReport
-        );
-    }
-
-
-    // FILTER TANGGAL
-    const reportDateFilter =
-        document.getElementById(
-            "reportDateFilter"
-        );
-
-    if (reportDateFilter) {
-
-        reportDateFilter.addEventListener(
-            "change",
-            renderReports
-        );
-    }
-
-
-    // CLEAR FILTER
-    const clearReportFilter =
-        document.getElementById(
-            "clearReportFilter"
-        );
-
-    if (clearReportFilter) {
-
-        clearReportFilter.addEventListener(
-            "click",
-            () => {
-
-                if (reportDateFilter) {
-                    reportDateFilter.value = "";
-                }
-
-                renderReports();
-            }
-        );
-    }
-
-
-    // REFRESH
-    const refreshReportsBtn =
-        document.getElementById(
-            "refreshReportsBtn"
-        );
-
-    if (refreshReportsBtn) {
-
-        refreshReportsBtn.addEventListener(
-            "click",
-            refreshReports
-        );
-    }
-
-
-    // MOBILE MENU
-    const mobileMenuBtn =
-        document.getElementById(
-            "mobileMenuBtn"
-        );
-
-    const sidebar =
-        document.querySelector(
-            ".sidebar"
-        );
-
-    if (
-        mobileMenuBtn &&
-        sidebar
-    ) {
-
-        mobileMenuBtn.addEventListener(
-            "click",
-            () => {
-
-                sidebar.classList.toggle(
-                    "show"
-                );
-            }
-        );
-    }
-
-
-    // LOGOUT
-    const logoutBtn =
-        document.getElementById(
-            "logoutBtn"
-        );
-
-    if (logoutBtn) {
-
-        logoutBtn.addEventListener(
-            "click",
-            logout
-        );
-    }
-}
-
-
-// =====================================================
-// RENDER PAGE
-// =====================================================
-
-function renderPage() {
-
-    // ID KARYAWAN
-    setTextBySelector(
-        "[data-employee-id]",
-        currentEmployee?.id_karyawan || "-"
-    );
-
-
-    // NAMA KARYAWAN
-    setTextBySelector(
-        "[data-employee-name]",
-        currentEmployee?.nama || "Karyawan"
-    );
-
-
-    // SITE
-    setText(
-        "reportSite",
-        currentSite?.nama_site ||
-        currentEmployee?.id_site ||
-        "-"
-    );
-
-
-    // TANGGAL
-    setText(
-        "reportDate",
-        formatDateIndo(
-            getLocalDateString()
-        )
-    );
-
-
-    renderReports();
-}
-
-
-// =====================================================
-// REFRESH REPORTS
-// =====================================================
-
-async function refreshReports() {
-
-    const button =
-        document.getElementById(
-            "refreshReportsBtn"
-        );
-
-
-    if (button) {
-
-        button.disabled = true;
-        button.textContent =
-            "Memuat...";
-    }
-
-
     try {
 
-        await loadCurrentUser();
-        await loadEmployee();
-        await loadSite();
-        await loadReports();
-
-        renderPage();
-
-        showMessage(
-            "Data laporan berhasil diperbarui.",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Refresh error:",
-            error
-        );
-
-        showMessage(
-            "Gagal memuat ulang laporan.",
-            "error"
-        );
-
-    } finally {
-
-        if (button) {
-
-            button.disabled = false;
-            button.textContent =
-                "Muat Ulang";
-        }
-    }
-}
+        const employeeId =
+            currentUser &&
+            currentUser.profile &&
+            currentUser.profile.id_karyawan;
 
 
-// =====================================================
-// SUBMIT REPORT
-// =====================================================
+        if (!employeeId) {
 
-async function submitReport(event) {
-
-    event.preventDefault();
-
-
-    const submitButton =
-        document.getElementById(
-            "submitReportBtn"
-        );
-
-
-    try {
-
-        const areaElement =
-            document.getElementById(
-                "reportArea"
-            );
-
-        const workElement =
-            document.getElementById(
-                "reportWork"
-            );
-
-        const descriptionElement =
-            document.getElementById(
-                "reportDescription"
-            );
-
-        const beforeUrlElement =
-            document.getElementById(
-                "photoBeforeUrl"
-            );
-
-        const afterUrlElement =
-            document.getElementById(
-                "photoAfterUrl"
-            );
-
-
-        const area =
-            areaElement?.value.trim() || "";
-
-        const pekerjaan =
-            workElement?.value.trim() || "";
-
-        const keterangan =
-            descriptionElement?.value.trim() || "";
-
-        const fotoSebelum =
-            beforeUrlElement?.value.trim() || "";
-
-        const fotoSesudah =
-            afterUrlElement?.value.trim() || "";
-
-
-        // VALIDASI AREA
-        if (!area) {
-
-            showMessage(
-                "Area pekerjaan wajib diisi.",
+            showToast(
+                "ID karyawan tidak ditemukan.",
                 "error"
             );
 
-            areaElement?.focus();
-
-            return;
+            return false;
         }
 
 
-        // VALIDASI PEKERJAAN
-        if (!pekerjaan) {
-
-            showMessage(
-                "Pekerjaan wajib diisi.",
-                "error"
-            );
-
-            workElement?.focus();
-
-            return;
-        }
+        const result =
+            await db
+                .from("karyawan")
+                .select("*")
+                .eq(
+                    "id_karyawan",
+                    employeeId
+                )
+                .maybeSingle();
 
 
-        // VALIDASI EMPLOYEE
-        if (!currentEmployee) {
+        const data =
+            result.data;
 
-            showMessage(
-                "Data karyawan belum tersedia.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (submitButton) {
-
-            submitButton.disabled = true;
-            submitButton.textContent =
-                "Mengirim...";
-        }
-
-
-        const now =
-            new Date();
-
-
-        const reportData = {
-
-            id_laporan:
-                generateReportId(),
-
-            id_karyawan:
-                currentEmployee.id_karyawan,
-
-            id_site:
-                currentEmployee.id_site,
-
-            tanggal:
-                getLocalDateString(),
-
-            area:
-                area,
-
-            pekerjaan:
-                pekerjaan,
-
-            keterangan:
-                keterangan || null,
-
-            foto_sebelum:
-                fotoSebelum || null,
-
-            foto_sesudah:
-                fotoSesudah || null,
-
-            waktu:
-                now.toISOString(),
-
-            status:
-                "AKTIF"
-        };
-
-
-        console.log(
-            "Data laporan:",
-            reportData
-        );
-
-
-        const {
-            data,
-            error
-        } = await db
-            .from("laporan")
-            .insert(reportData)
-            .select()
-            .single();
+        const error =
+            result.error;
 
 
         if (error) {
 
             console.error(
-                "Error Supabase:",
+                "Karyawan Error:",
+                error
+            );
+
+            showToast(
+                "Data karyawan tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!data) {
+
+            showToast(
+                "Data karyawan tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        currentEmployee =
+            data;
+
+
+        setText(
+            "employeeId",
+            data.id_karyawan || "-"
+        );
+
+
+        setText(
+            "topNama",
+            data.nama || "Karyawan"
+        );
+
+
+        setText(
+            "topId",
+            data.id_karyawan || "-"
+        );
+
+
+        updateAvatar(
+            data.nama
+        );
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "loadEmployee Error:",
+            error
+        );
+
+        showToast(
+            "Gagal memuat data karyawan.",
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   LOAD SITE
+   ========================================================= */
+
+async function loadSite() {
+
+    try {
+
+        const siteId =
+            currentEmployee &&
+            currentEmployee.id_site;
+
+
+        if (!siteId) {
+
+            renderEmptySite();
+
+            return false;
+        }
+
+
+        const result =
+            await db
+                .from("site")
+                .select("*")
+                .eq(
+                    "id_site",
+                    siteId
+                )
+                .maybeSingle();
+
+
+        const data =
+            result.data;
+
+        const error =
+            result.error;
+
+
+        if (error) {
+
+            console.error(
+                "Site Error:",
+                error
+            );
+
+            renderEmptySite();
+
+            showToast(
+                "Data site tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!data) {
+
+            renderEmptySite();
+
+            showToast(
+                "Data site tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        currentSite =
+            data;
+
+
+        setText(
+            "siteName",
+            data.nama_site || "-"
+        );
+
+
+        setText(
+            "siteAddress",
+            data.alamat || "-"
+        );
+
+
+        const siteStatus =
+            document.getElementById(
+                "siteStatus"
+            );
+
+
+        if (siteStatus) {
+
+            siteStatus.textContent =
+                data.status || "AKTIF";
+        }
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "loadSite Error:",
+            error
+        );
+
+        renderEmptySite();
+
+        return false;
+    }
+}
+
+
+function renderEmptySite() {
+
+    setText(
+        "siteName",
+        "Site belum tersedia"
+    );
+
+
+    setText(
+        "siteAddress",
+        "-"
+    );
+
+
+    const siteStatus =
+        document.getElementById(
+            "siteStatus"
+        );
+
+
+    if (siteStatus) {
+
+        siteStatus.textContent =
+            "TIDAK TERSEDIA";
+    }
+}
+
+
+/* =========================================================
+   DEFAULT FILTER
+   ========================================================= */
+
+function setDefaultFilters() {
+
+    const tanggal =
+        document.getElementById(
+            "filterTanggal"
+        );
+
+
+    const bulan =
+        document.getElementById(
+            "filterBulan"
+        );
+
+
+    const status =
+        document.getElementById(
+            "filterStatus"
+        );
+
+
+    if (tanggal) {
+
+        tanggal.value =
+            getTodayDate();
+    }
+
+
+    if (bulan) {
+
+        bulan.value =
+            "";
+    }
+
+
+    if (status) {
+
+        status.value =
+            "";
+    }
+}
+
+
+/* =========================================================
+   LOAD REPORT
+   ========================================================= */
+
+async function loadReports() {
+
+    const list =
+        document.getElementById(
+            "reportList"
+        );
+
+
+    if (!list) {
+        return;
+    }
+
+
+    list.innerHTML =
+        "<div class=\"loading-state\">" +
+            "<div class=\"loading-spinner\"></div>" +
+            "<p>Memuat laporan...</p>" +
+        "</div>";
+
+
+    try {
+
+        const employeeId =
+            currentUser &&
+            currentUser.profile &&
+            currentUser.profile.id_karyawan;
+
+
+        const siteId =
+            currentEmployee &&
+            currentEmployee.id_site;
+
+
+        if (!employeeId || !siteId) {
+
+            throw new Error(
+                "Data karyawan atau site tidak ditemukan."
+            );
+        }
+
+
+        let query =
+            db
+                .from("checklist_harian")
+                .select(
+                    "id_checklist,id_template,id_karyawan,id_site,tanggal,pekerjaan,status,keterangan,foto,created_at,updated_at"
+                )
+                .eq(
+                    "id_karyawan",
+                    employeeId
+                )
+                .eq(
+                    "id_site",
+                    siteId
+                );
+
+
+        const tanggal =
+            document.getElementById(
+                "filterTanggal"
+            );
+
+
+        const bulan =
+            document.getElementById(
+                "filterBulan"
+            );
+
+
+        const status =
+            document.getElementById(
+                "filterStatus"
+            );
+
+
+        if (
+            tanggal &&
+            tanggal.value
+        ) {
+
+            query =
+                query.eq(
+                    "tanggal",
+                    tanggal.value
+                );
+
+        } else if (
+            bulan &&
+            bulan.value
+        ) {
+
+            const year =
+                new Date()
+                    .getFullYear();
+
+
+            const startDate =
+                year +
+                "-" +
+                bulan.value +
+                "-01";
+
+
+            const endDate =
+                getLastDateOfMonth(
+                    year,
+                    Number(bulan.value)
+                );
+
+
+            query =
+                query
+                    .gte(
+                        "tanggal",
+                        startDate
+                    )
+                    .lte(
+                        "tanggal",
+                        endDate
+                    );
+        }
+
+
+        if (
+            status &&
+            status.value
+        ) {
+
+            query =
+                query.eq(
+                    "status",
+                    status.value
+                );
+        }
+
+
+        const result =
+            await query
+                .order(
+                    "tanggal",
+                    {
+                        ascending: false
+                    }
+                )
+                .order(
+                    "id_template",
+                    {
+                        ascending: true
+                    }
+                );
+
+
+        const data =
+            result.data;
+
+        const error =
+            result.error;
+
+
+        if (error) {
+
+            console.error(
+                "Report Error:",
                 error
             );
 
@@ -682,331 +706,361 @@ async function submitReport(event) {
         }
 
 
-        console.log(
-            "Laporan berhasil:",
-            data
-        );
+        reportData =
+            data || [];
 
-
-        showMessage(
-            "Laporan berhasil dikirim.",
-            "success"
-        );
-
-
-        resetReportForm();
-
-
-        await loadReports();
 
         renderReports();
-
 
     } catch (error) {
 
         console.error(
-            "Gagal mengirim laporan:",
+            "loadReports Error:",
             error
         );
 
 
-        showMessage(
-            "Laporan gagal dikirim. " +
-            (error.message || ""),
-            "error"
+        list.innerHTML =
+            "<div class=\"empty-state\">" +
+                "<div class=\"empty-state-icon\">⚠️</div>" +
+                "<strong>Laporan tidak dapat dimuat</strong>" +
+                "<p>" +
+                    escapeHtml(
+                        error.message ||
+                        "Terjadi kesalahan."
+                    ) +
+                "</p>" +
+            "</div>";
+
+
+        updateSummary(
+            []
         );
 
-    } finally {
 
-        if (submitButton) {
-
-            submitButton.disabled = false;
-
-            submitButton.textContent =
-                "Kirim Laporan";
-        }
+        showToast(
+            "Gagal memuat laporan.",
+            "error"
+        );
     }
 }
 
 
-// =====================================================
-// GENERATE REPORT ID
-// =====================================================
-
-function generateReportId() {
-
-    const now =
-        new Date();
-
-
-    const timestamp =
-
-        now.getFullYear().toString() +
-
-        String(
-            now.getMonth() + 1
-        ).padStart(2, "0") +
-
-        String(
-            now.getDate()
-        ).padStart(2, "0") +
-
-        String(
-            now.getHours()
-        ).padStart(2, "0") +
-
-        String(
-            now.getMinutes()
-        ).padStart(2, "0") +
-
-        String(
-            now.getSeconds()
-        ).padStart(2, "0") +
-
-        String(
-            now.getMilliseconds()
-        ).padStart(3, "0");
-
-
-    return `LAP${timestamp}`;
-}
-
-
-// =====================================================
-// RENDER REPORTS
-// =====================================================
+/* =========================================================
+   RENDER REPORT
+   ========================================================= */
 
 function renderReports() {
 
-    const tbody =
+    const list =
         document.getElementById(
-            "reportsTableBody"
+            "reportList"
         );
 
 
-    if (!tbody) {
+    if (!list) {
         return;
     }
 
 
-    const filterElement =
-        document.getElementById(
-            "reportDateFilter"
-        );
+    updateSummary(
+        reportData
+    );
 
 
-    const filterTanggal =
-        filterElement?.value || "";
+    setText(
+        "reportCount",
+        reportData.length +
+        " laporan"
+    );
 
 
-    let filteredReports =
-        [...reports];
-
-
-    if (filterTanggal) {
-
-        filteredReports =
-            filteredReports.filter(
-                report =>
-                    report.tanggal ===
-                    filterTanggal
-            );
-    }
-
-
-    // TIDAK ADA DATA
     if (
-        filteredReports.length === 0
+        !reportData ||
+        reportData.length === 0
     ) {
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    Belum ada laporan.
-                </td>
-            </tr>
-        `;
-
-        updateReportsCount(0);
+        list.innerHTML =
+            "<div class=\"empty-state\">" +
+                "<div class=\"empty-state-icon\">📄</div>" +
+                "<strong>Belum ada laporan</strong>" +
+                "<p>Tidak ada data pekerjaan sesuai filter.</p>" +
+            "</div>";
 
         return;
     }
 
 
-    tbody.innerHTML =
-        filteredReports
-            .map(
-                report => {
-
-                    return `
-
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    formatDateIndo(
-                                        report.tanggal
-                                    )
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    formatDateTime(
-                                        report.waktu
-                                    )
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    report.area ||
-                                    "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    report.pekerjaan ||
-                                    "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    report.keterangan ||
-                                    "-"
-                                )}
-                            </td>
-
-                            <td>
-                                <span class="status-pill ${getStatusClass(
-                                    report.status
-                                )}">
-                                    ${escapeHtml(
-                                        report.status ||
-                                        "-"
-                                    )}
-                                </span>
-                            </td>
-
-                        </tr>
-
-                    `;
-                }
-            )
-            .join("");
+    list.innerHTML =
+        "";
 
 
-    updateReportsCount(
-        filteredReports.length
+    for (
+        let i = 0;
+        i < reportData.length;
+        i++
+    ) {
+
+        const item =
+            reportData[i];
+
+
+        const completed =
+            String(
+                item.status || ""
+            ).toUpperCase() ===
+            "SELESAI";
+
+
+        const statusClass =
+            completed
+                ? "completed"
+                : "pending";
+
+
+        const statusText =
+            completed
+                ? "Selesai"
+                : "Belum Selesai";
+
+
+        const dateText =
+            formatDate(
+                item.tanggal
+            );
+
+
+        const element =
+            document.createElement(
+                "div"
+            );
+
+
+        element.className =
+            "report-item";
+
+
+        element.innerHTML =
+            "<div class=\"report-number\">" +
+                (i + 1) +
+            "</div>" +
+
+            "<div class=\"report-content\">" +
+
+                "<div class=\"report-title\">" +
+                    escapeHtml(
+                        item.pekerjaan ||
+                        "Pekerjaan"
+                    ) +
+                "</div>" +
+
+                "<div class=\"report-meta\">" +
+
+                    "<span>" +
+                        "📅 " +
+                        dateText +
+                    "</span>" +
+
+                    "<span>" +
+                        "ID " +
+                        escapeHtml(
+                            String(
+                                item.id_checklist
+                            )
+                        ) +
+                    "</span>" +
+
+                "</div>" +
+
+            "</div>" +
+
+            "<span class=\"report-status " +
+                statusClass +
+            "\">" +
+                statusText +
+            "</span>";
+
+
+        list.appendChild(
+            element
+        );
+    }
+}
+
+
+/* =========================================================
+   SUMMARY
+   ========================================================= */
+
+function updateSummary(data) {
+
+    const total =
+        data.length;
+
+
+    let completed =
+        0;
+
+
+    let pending =
+        0;
+
+
+    for (
+        let i = 0;
+        i < data.length;
+        i++
+    ) {
+
+        const status =
+            String(
+                data[i].status || ""
+            ).toUpperCase();
+
+
+        if (
+            status === "SELESAI"
+        ) {
+
+            completed++;
+
+        } else {
+
+            pending++;
+        }
+    }
+
+
+    setText(
+        "totalTasks",
+        total
+    );
+
+
+    setText(
+        "completedTasks",
+        completed
+    );
+
+
+    setText(
+        "pendingTasks",
+        pending
     );
 }
 
 
-// =====================================================
-// REPORT COUNT
-// =====================================================
+/* =========================================================
+   EVENTS
+   ========================================================= */
 
-function updateReportsCount(count) {
+function setupEvents() {
 
-    const element =
+    const filterButton =
         document.getElementById(
-            "reportsCount"
+            "filterButton"
         );
 
 
-    if (!element) {
+    if (filterButton) {
+
+        filterButton.addEventListener(
+            "click",
+            function () {
+
+                loadReports();
+
+            }
+        );
+    }
+
+
+    const tanggal =
+        document.getElementById(
+            "filterTanggal"
+        );
+
+
+    const bulan =
+        document.getElementById(
+            "filterBulan"
+        );
+
+
+    if (tanggal) {
+
+        tanggal.addEventListener(
+            "change",
+            function () {
+
+                if (
+                    tanggal.value &&
+                    bulan
+                ) {
+
+                    bulan.value =
+                        "";
+                }
+
+            }
+        );
+    }
+
+
+    if (bulan) {
+
+        bulan.addEventListener(
+            "change",
+            function () {
+
+                if (
+                    bulan.value &&
+                    tanggal
+                ) {
+
+                    tanggal.value =
+                        "";
+                }
+
+            }
+        );
+    }
+}
+
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+function updateAvatar(name) {
+
+    const avatar =
+        document.getElementById(
+            "employeeAvatar"
+        );
+
+
+    if (
+        !avatar ||
+        !name
+    ) {
         return;
     }
 
 
-    element.textContent =
-        `${count} laporan`;
+    avatar.textContent =
+        String(name)
+            .trim()
+            .charAt(0)
+            .toUpperCase();
 }
 
 
-// =====================================================
-// STATUS CLASS
-// =====================================================
+/* =========================================================
+   DATE
+   ========================================================= */
 
-function getStatusClass(status) {
-
-    switch (
-        String(status || "")
-            .toUpperCase()
-    ) {
-
-        case "AKTIF":
-            return "success";
-
-        case "SELESAI":
-            return "success";
-
-        case "PROSES":
-            return "warning";
-
-        case "DITOLAK":
-            return "danger";
-
-        default:
-            return "neutral";
-    }
-}
-
-
-// =====================================================
-// RESET FORM
-// =====================================================
-
-function resetReportForm() {
-
-    const form =
-        document.getElementById(
-            "reportForm"
-        );
-
-
-    if (form) {
-        form.reset();
-    }
-}
-
-
-// =====================================================
-// LOGOUT
-// =====================================================
-
-async function logout() {
-
-    try {
-
-        if (db?.auth) {
-            await db.auth.signOut();
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Logout error:",
-            error
-        );
-    }
-
-
-    sessionStorage.clear();
-
-
-    window.location.href =
-        "../index.html";
-}
-
-
-// =====================================================
-// DATE
-// =====================================================
-
-function getLocalDateString() {
+function getTodayDate() {
 
     const now =
         new Date();
@@ -1019,99 +1073,120 @@ function getLocalDateString() {
     const month =
         String(
             now.getMonth() + 1
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
 
     const day =
         String(
             now.getDate()
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
 
-    return `${year}-${month}-${day}`;
+    return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+    );
 }
 
 
-// =====================================================
-// FORMAT DATE
-// =====================================================
+function formatDate(dateValue) {
 
-function formatDateIndo(
-    dateString
-) {
-
-    if (!dateString) {
+    if (!dateValue) {
         return "-";
     }
 
 
-    const date =
-        new Date(
-            `${dateString}T00:00:00`
-        );
+    const parts =
+        String(
+            dateValue
+        ).split("-");
 
 
     if (
-        Number.isNaN(
-            date.getTime()
-        )
+        parts.length !== 3
     ) {
-
-        return dateString;
+        return dateValue;
     }
+
+
+    const year =
+        Number(parts[0]);
+
+
+    const month =
+        Number(parts[1]);
+
+
+    const day =
+        Number(parts[2]);
+
+
+    const date =
+        new Date(
+            year,
+            month - 1,
+            day
+        );
 
 
     return date.toLocaleDateString(
         "id-ID",
         {
-            day: "2-digit",
-            month: "2-digit",
+            day: "numeric",
+            month: "short",
             year: "numeric"
         }
     );
 }
 
 
-// =====================================================
-// FORMAT DATE TIME
-// =====================================================
-
-function formatDateTime(
-    dateString
+function getLastDateOfMonth(
+    year,
+    month
 ) {
 
-    if (!dateString) {
-        return "-";
-    }
-
-
     const date =
-        new Date(dateString);
+        new Date(
+            year,
+            month,
+            0
+        );
 
 
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
+    const day =
+        String(
+            date.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
 
-        return "-";
-    }
 
-
-    return date.toLocaleTimeString(
-        "id-ID",
-        {
-            hour: "2-digit",
-            minute: "2-digit"
-        }
+    return (
+        year +
+        "-" +
+        String(month).padStart(
+            2,
+            "0"
+        ) +
+        "-" +
+        day
     );
 }
 
 
-// =====================================================
-// SET TEXT BY ID
-// =====================================================
+/* =========================================================
+   SET TEXT
+   ========================================================= */
 
 function setText(
     id,
@@ -1119,118 +1194,112 @@ function setText(
 ) {
 
     const element =
-        document.getElementById(id);
-
-
-    if (element) {
-
-        element.textContent =
-            value;
-    }
-}
-
-
-// =====================================================
-// SET TEXT BY SELECTOR
-// =====================================================
-
-function setTextBySelector(
-    selector,
-    value
-) {
-
-    const element =
-        document.querySelector(
-            selector
-        );
-
-
-    if (element) {
-
-        element.textContent =
-            value;
-    }
-}
-
-
-// =====================================================
-// MESSAGE
-// =====================================================
-
-function showMessage(
-    message,
-    type = "error"
-) {
-
-    const box =
         document.getElementById(
-            "reportMessage"
+            id
         );
 
 
-    if (!box) {
+    if (element) {
 
-        console.warn(
-            message
+        element.textContent =
+            value;
+    }
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function showToast(
+    message,
+    type
+) {
+
+    const toast =
+        document.getElementById(
+            "toast"
         );
 
+
+    if (!toast) {
         return;
     }
 
 
-    box.textContent =
+    if (!type) {
+        type = "info";
+    }
+
+
+    toast.textContent =
         message;
 
 
-    box.className =
-        `message-box show ${type}`;
+    toast.className =
+        "toast " +
+        type;
 
 
-    clearTimeout(
-        showMessage.timer
+    toast.classList.add(
+        "show"
     );
 
 
-    showMessage.timer =
-        setTimeout(
-            () => {
+    setTimeout(
+        function () {
 
-                box.className =
-                    "message-box";
+            toast.classList.remove(
+                "show"
+            );
 
-            },
-            4000
-        );
+        },
+        3000
+    );
 }
 
 
-// =====================================================
-// ESCAPE HTML
-// =====================================================
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
 
 function escapeHtml(value) {
 
-    return String(
-        value ?? ""
-    )
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-        .replaceAll(
-            "'",
-            "&#039;"
+    let text =
+        String(
+            value == null
+                ? ""
+                : value
         );
+
+
+    text =
+        text.replace(
+            /&/g,
+            "&amp;"
+        );
+
+
+    text =
+        text.replace(
+            /</g,
+            "&lt;"
+        );
+
+
+    text =
+        text.replace(
+            />/g,
+            "&gt;"
+        );
+
+
+    text =
+        text.replace(
+            /"/g,
+            "&quot;"
+        );
+
+
+    return text;
 }

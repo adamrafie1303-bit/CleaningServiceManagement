@@ -1,1376 +1,1144 @@
+"use strict";
+
+/* =========================================================
+   CHECKLIST KARYAWAN
+   PT. Ardend Adhikara Pandita
+   ========================================================= */
+
 const db = window.supabaseClient;
 
 let currentUser = null;
-let currentUserData = null;
 let currentEmployee = null;
 let currentSite = null;
+let checklistData = [];
+let isSaving = false;
 
-let todayChecklist = [];
-let checklistTemplates = [];
 
-const today = getLocalDate();
+/* =========================================================
+   INIT
+   ========================================================= */
 
-// ======================================================
-// SAAT HALAMAN SIAP
-// ======================================================
-
-document.addEventListener("DOMContentLoaded", async () => {
-try {
-await initChecklist();
-setupDateFilter();
-setupButtons();
-} catch (error) {
-console.error("Checklist error:", error);
-
-    showMessage(
-        error?.message || "Terjadi kesalahan saat memuat checklist.",
-        "error"
-    );
-}
-
+document.addEventListener("DOMContentLoaded", function () {
+    updateDate();
+    setupEvents();
+    initPage();
 });
 
-// ======================================================
-// INIT CHECKLIST
-// ======================================================
 
-async function initChecklist() {
-
-if (!db) {
-    throw new Error("Supabase belum terhubung.");
-}
-
-showMessage(
-    "Memuat data checklist...",
-    "info"
-);
-
-// --------------------------------------------------
-// CEK LOGIN
-// --------------------------------------------------
-
-const {
-    data: authData,
-    error: authError
-} = await db.auth.getUser();
-
-if (authError) {
-    throw authError;
-}
-
-const user = authData?.user;
-
-if (!user) {
-    window.location.href = "../index.html";
-    return;
-}
-
-currentUser = user;
-
-
-// --------------------------------------------------
-// AMBIL DATA USERS
-// --------------------------------------------------
-
-const {
-    data: userData,
-    error: userError
-} = await db
-    .from("users")
-    .select("*")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
-
-if (userError) {
-    throw userError;
-}
-
-if (!userData) {
-    throw new Error(
-        "Data akun tidak ditemukan."
-    );
-}
-
-currentUserData = userData;
-
-
-// --------------------------------------------------
-// CEK STATUS
-// --------------------------------------------------
-
-if (
-    String(userData.status).toUpperCase() !== "AKTIF"
-) {
-    await db.auth.signOut();
-
-    throw new Error(
-        "Akun Anda tidak aktif."
-    );
-}
-
-
-// --------------------------------------------------
-// CEK ROLE
-// --------------------------------------------------
-
-if (
-    String(userData.role).toUpperCase() !== "KARYAWAN"
-) {
-    throw new Error(
-        "Halaman ini hanya untuk karyawan."
-    );
-}
-
-
-// --------------------------------------------------
-// CEK ID KARYAWAN
-// --------------------------------------------------
-
-if (!userData.id_karyawan) {
-    throw new Error(
-        "Akun belum terhubung dengan ID karyawan."
-    );
-}
-
-
-// --------------------------------------------------
-// AMBIL DATA KARYAWAN
-// --------------------------------------------------
-
-const {
-    data: employeeData,
-    error: employeeError
-} = await db
-    .from("karyawan")
-    .select("*")
-    .eq(
-        "id_karyawan",
-        userData.id_karyawan
-    )
-    .maybeSingle();
-
-if (employeeError) {
-    throw employeeError;
-}
-
-if (!employeeData) {
-    throw new Error(
-        "Data karyawan tidak ditemukan."
-    );
-}
-
-currentEmployee = employeeData;
-
-
-// --------------------------------------------------
-// CEK SITE
-// --------------------------------------------------
-
-if (!employeeData.id_site) {
-    throw new Error(
-        "Karyawan belum memiliki site."
-    );
-}
-
-
-// --------------------------------------------------
-// AMBIL DATA SITE
-// --------------------------------------------------
-
-const {
-    data: siteData,
-    error: siteError
-} = await db
-    .from("site")
-    .select("*")
-    .eq(
-        "id_site",
-        employeeData.id_site
-    )
-    .maybeSingle();
-
-if (siteError) {
-    throw siteError;
-}
-
-if (!siteData) {
-    throw new Error(
-        "Data site tidak ditemukan."
-    );
-}
-
-currentSite = siteData;
-
-
-// --------------------------------------------------
-// UPDATE INFORMASI HALAMAN
-// --------------------------------------------------
-
-updateEmployeeInfo();
-
-
-setText(
-    "todayDate",
-    formatDate(today)
-);
-
-
-// --------------------------------------------------
-// LOAD CHECKLIST HARI INI
-// --------------------------------------------------
-
-await loadTodayChecklist();
-
-
-// --------------------------------------------------
-// LOAD RIWAYAT
-// --------------------------------------------------
-
-await loadChecklistHistory();
-
-
-hideMessage();
-
-}
-
-// ======================================================
-// UPDATE INFORMASI KARYAWAN
-// ======================================================
-
-function updateEmployeeInfo() {
-
-if (!currentEmployee) {
-    return;
-}
-
-const employeeId =
-    currentEmployee.id_karyawan || "-";
-
-const employeeName =
-    currentEmployee.nama || "-";
-
-const siteName =
-    currentSite?.nama_site ||
-    currentEmployee.id_site ||
-    "-";
-
-
-document
-    .querySelectorAll("[data-employee-id]")
-    .forEach(element => {
-        element.textContent = employeeId;
-    });
-
-
-document
-    .querySelectorAll("[data-employee-name]")
-    .forEach(element => {
-        element.textContent = employeeName;
-    });
-
-
-const siteElement =
-    document.getElementById("checklistSite");
-
-if (siteElement) {
-    siteElement.textContent =
-        `Site: ${siteName}`;
-}
-
-}
-
-// ======================================================
-// LOAD CHECKLIST HARI INI
-// ======================================================
-
-async function loadTodayChecklist() {
-
-if (!currentEmployee) {
-    return;
-}
-
-
-const {
-    data,
-    error
-} = await db
-    .from("checklist_harian")
-    .select("*")
-    .eq(
-        "id_karyawan",
-        currentEmployee.id_karyawan
-    )
-    .eq(
-        "tanggal",
-        today
-    )
-    .order(
-        "id_checklist",
-        {
-            ascending: true
+async function initPage() {
+    try {
+        if (!db) {
+            showToast("Koneksi sistem tidak tersedia.", "error");
+            return;
         }
-    );
 
+        const userLoaded = await loadLoginUser();
 
-if (error) {
-    throw error;
-}
-
-
-todayChecklist = data || [];
-
-
-// --------------------------------------------------
-// JIKA BELUM ADA, BUAT DARI TEMPLATE
-// --------------------------------------------------
-
-if (todayChecklist.length === 0) {
-    await generateTodayChecklist();
-}
-
-
-renderTodayChecklist();
-updateSummary();
-
-}
-
-// ======================================================
-// LOAD TEMPLATE CHECKLIST
-// ======================================================
-
-async function loadChecklistTemplates() {
-
-const {
-    data,
-    error
-} = await db
-    .from("checklist_template")
-    .select("*")
-    .eq(
-        "id_site",
-        currentEmployee.id_site
-    )
-    .eq(
-        "status",
-        "AKTIF"
-    )
-    .order(
-        "urutan",
-        {
-            ascending: true
+        if (!userLoaded) {
+            return;
         }
-    );
 
+        const employeeLoaded = await loadEmployee();
 
-if (error) {
-    throw error;
+        if (!employeeLoaded) {
+            return;
+        }
+
+        const siteLoaded = await loadSite();
+
+        if (!siteLoaded) {
+            return;
+        }
+
+        await loadChecklist();
+
+    } catch (error) {
+        console.error("Checklist Init Error:", error);
+        showToast("Gagal memuat halaman checklist.", "error");
+    }
 }
 
 
-checklistTemplates = data || [];
+/* =========================================================
+   LOAD USER
+   ========================================================= */
 
-return checklistTemplates;
+async function loadLoginUser() {
+    try {
+        const authResult = await db.auth.getUser();
 
-}
+        const authData = authResult.data;
+        const authError = authResult.error;
 
-// ======================================================
-// BUAT CHECKLIST HARI INI
-// ======================================================
+        if (
+            authError ||
+            !authData ||
+            !authData.user
+        ) {
+            window.location.href = "../index.html";
+            return false;
+        }
 
-async function generateTodayChecklist() {
+        currentUser = authData.user;
 
-await loadChecklistTemplates();
-
-
-if (checklistTemplates.length === 0) {
-
-    showMessage(
-        "Belum ada template checklist untuk site Anda.",
-        "warning"
-    );
-
-    return;
-}
-
-
-const rows =
-    checklistTemplates.map(template => ({
-        id_template: template.id_template,
-        id_karyawan: currentEmployee.id_karyawan,
-        id_site: currentEmployee.id_site,
-        tanggal: today,
-        pekerjaan: template.pekerjaan,
-        status: "BELUM_SELESAI",
-        keterangan: null,
-        foto: null
-    }));
-
-
-const {
-    data,
-    error
-} = await db
-    .from("checklist_harian")
-    .insert(rows)
-    .select("*");
-
-
-if (error) {
-
-    // Kalau data sudah dibuat sebelumnya,
-    // ambil ulang saja.
-    if (error.code === "23505") {
-
-        const {
-            data: existingData,
-            error: existingError
-        } = await db
-            .from("checklist_harian")
+        const userResult = await db
+            .from("users")
             .select("*")
-            .eq(
-                "id_karyawan",
-                currentEmployee.id_karyawan
-            )
-            .eq(
-                "tanggal",
-                today
-            )
-            .order(
-                "id_checklist",
-                {
-                    ascending: true
-                }
+            .eq("auth_user_id", currentUser.id)
+            .maybeSingle();
+
+        const userData = userResult.data;
+        const userError = userResult.error;
+
+        if (userError) {
+            console.error("Users Error:", userError);
+            showToast("Data akun tidak dapat dibaca.", "error");
+            return false;
+        }
+
+        if (!userData) {
+            showToast("Data akun tidak ditemukan.", "error");
+            return false;
+        }
+
+        if (
+            userData.status &&
+            userData.status !== "AKTIF"
+        ) {
+            showToast("Akun kamu tidak aktif.", "error");
+
+            await db.auth.signOut();
+
+            setTimeout(function () {
+                window.location.href = "../index.html";
+            }, 1500);
+
+            return false;
+        }
+
+        if (
+            userData.role &&
+            userData.role !== "KARYAWAN"
+        ) {
+            showToast("Akun ini bukan akun karyawan.", "error");
+            return false;
+        }
+
+        if (!userData.id_karyawan) {
+            showToast(
+                "Akun belum terhubung dengan data karyawan.",
+                "error"
             );
 
-
-        if (existingError) {
-            throw existingError;
+            return false;
         }
 
-        todayChecklist =
-            existingData || [];
+        currentUser.profile = userData;
+
+        return true;
+
+    } catch (error) {
+        console.error("loadLoginUser Error:", error);
+        showToast("Gagal memeriksa akun.", "error");
+        return false;
+    }
+}
+
+
+/* =========================================================
+   LOAD EMPLOYEE
+   ========================================================= */
+
+async function loadEmployee() {
+    try {
+        const employeeId =
+            currentUser &&
+            currentUser.profile &&
+            currentUser.profile.id_karyawan;
+
+        if (!employeeId) {
+            showToast("ID karyawan tidak ditemukan.", "error");
+            return false;
+        }
+
+        const result = await db
+            .from("karyawan")
+            .select("*")
+            .eq("id_karyawan", employeeId)
+            .maybeSingle();
+
+        const data = result.data;
+        const error = result.error;
+
+        if (error) {
+            console.error("Karyawan Error:", error);
+            showToast(
+                "Data karyawan tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+        if (!data) {
+            showToast(
+                "Data karyawan tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+        currentEmployee = data;
+
+        setText(
+            "employeeId",
+            data.id_karyawan || "-"
+        );
+
+        setText(
+            "topNama",
+            data.nama || "Karyawan"
+        );
+
+        setText(
+            "topId",
+            data.id_karyawan || "-"
+        );
+
+        updateAvatar(data.nama);
+
+        return true;
+
+    } catch (error) {
+        console.error("loadEmployee Error:", error);
+        showToast(
+            "Gagal memuat data karyawan.",
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   LOAD SITE
+   ========================================================= */
+
+async function loadSite() {
+    try {
+        const siteId =
+            currentEmployee &&
+            currentEmployee.id_site;
+
+        if (!siteId) {
+            renderEmptySite();
+            return false;
+        }
+
+        const result = await db
+            .from("site")
+            .select("*")
+            .eq("id_site", siteId)
+            .maybeSingle();
+
+        const data = result.data;
+        const error = result.error;
+
+        if (error) {
+            console.error("Site Error:", error);
+
+            renderEmptySite();
+
+            showToast(
+                "Data site tidak dapat dibaca.",
+                "error"
+            );
+
+            return false;
+        }
+
+        if (!data) {
+            renderEmptySite();
+
+            showToast(
+                "Data site tidak ditemukan.",
+                "error"
+            );
+
+            return false;
+        }
+
+        currentSite = data;
+
+        setText(
+            "siteName",
+            data.nama_site || "-"
+        );
+
+        setText(
+            "siteAddress",
+            data.alamat || "-"
+        );
+
+        const siteStatus =
+            document.getElementById("siteStatus");
+
+        if (siteStatus) {
+            siteStatus.textContent =
+                data.status || "AKTIF";
+        }
+
+        return true;
+
+    } catch (error) {
+        console.error("loadSite Error:", error);
+        renderEmptySite();
+        return false;
+    }
+}
+
+
+function renderEmptySite() {
+    setText(
+        "siteName",
+        "Site belum tersedia"
+    );
+
+    setText(
+        "siteAddress",
+        "-"
+    );
+
+    const siteStatus =
+        document.getElementById("siteStatus");
+
+    if (siteStatus) {
+        siteStatus.textContent =
+            "TIDAK TERSEDIA";
+    }
+}
+
+
+/* =========================================================
+   LOAD CHECKLIST
+   ========================================================= */
+
+async function loadChecklist() {
+    const list =
+        document.getElementById("checklistList");
+
+    if (!list) {
+        return;
+    }
+
+    list.innerHTML =
+        "<div class=\"loading-state\">" +
+            "<div class=\"loading-spinner\"></div>" +
+            "<p>Memuat checklist...</p>" +
+        "</div>";
+
+    try {
+        const employeeId =
+            currentUser &&
+            currentUser.profile &&
+            currentUser.profile.id_karyawan;
+
+        const siteId =
+            currentEmployee &&
+            currentEmployee.id_site;
+
+        if (!employeeId || !siteId) {
+            throw new Error(
+                "Data karyawan atau site tidak ditemukan."
+            );
+        }
+
+        const today =
+            getTodayDate();
+
+
+        /* =================================================
+           TEMPLATE
+           ================================================= */
+
+        const templateResult = await db
+            .from("checklist_template")
+            .select(
+                "id_template,id_site,pekerjaan,urutan,wajib,status"
+            )
+            .eq("id_site", siteId)
+            .eq("status", "AKTIF")
+            .order("urutan", {
+                ascending: true
+            });
+
+        const templates =
+            templateResult.data;
+
+        const templateError =
+            templateResult.error;
+
+        if (templateError) {
+            console.error(
+                "Template Error:",
+                templateError
+            );
+
+            throw templateError;
+        }
+
+
+        /* =================================================
+           CHECKLIST HARIAN
+           ================================================= */
+
+        const dailyResult = await db
+            .from("checklist_harian")
+            .select(
+                "id_checklist,id_template,id_karyawan,id_site,tanggal,pekerjaan,status,keterangan,foto"
+            )
+            .eq("id_karyawan", employeeId)
+            .eq("id_site", siteId)
+            .eq("tanggal", today)
+            .order("id_template", {
+                ascending: true
+            });
+
+        const dailyData =
+            dailyResult.data;
+
+        const dailyError =
+            dailyResult.error;
+
+        if (dailyError) {
+            console.error(
+                "Daily Checklist Error:",
+                dailyError
+            );
+
+            throw dailyError;
+        }
+
+
+        /* =================================================
+           GABUNGKAN DATA
+           ================================================= */
+
+        checklistData = [];
+
+        for (let i = 0; i < (templates || []).length; i++) {
+            const template =
+                templates[i];
+
+            let daily = null;
+
+            for (let j = 0; j < (dailyData || []).length; j++) {
+                if (
+                    Number(dailyData[j].id_template) ===
+                    Number(template.id_template)
+                ) {
+                    daily = dailyData[j];
+                    break;
+                }
+            }
+
+            checklistData.push({
+                id_template: template.id_template,
+                id_site: template.id_site,
+                pekerjaan: template.pekerjaan,
+                urutan: template.urutan,
+                wajib: template.wajib,
+                status: template.status,
+                daily: daily
+            });
+        }
+
+        renderChecklist();
+
+    } catch (error) {
+        console.error(
+            "loadChecklist Error:",
+            error
+        );
+
+        list.innerHTML =
+            "<div class=\"empty-state\">" +
+                "<div class=\"empty-state-icon\">⚠️</div>" +
+                "<strong>Checklist tidak dapat dimuat</strong>" +
+                "<p>" +
+                    escapeHtml(
+                        error.message ||
+                        "Terjadi kesalahan."
+                    ) +
+                "</p>" +
+            "</div>";
+
+        showToast(
+            "Gagal memuat checklist.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+
+function renderChecklist() {
+    const list =
+        document.getElementById("checklistList");
+
+    if (!list) {
+        return;
+    }
+
+    if (
+        !checklistData ||
+        checklistData.length === 0
+    ) {
+        list.innerHTML =
+            "<div class=\"empty-state\">" +
+                "<div class=\"empty-state-icon\">📋</div>" +
+                "<strong>Belum ada checklist</strong>" +
+                "<p>Belum ada tugas aktif untuk site ini.</p>" +
+            "</div>";
+
+        updateProgress();
+        updateTaskCount();
+        updateSaveButton();
 
         return;
     }
 
-    throw error;
-}
-
-
-todayChecklist =
-    data || [];
-
-}
-
-// ======================================================
-// TAMPILKAN CHECKLIST HARI INI
-// ======================================================
-
-function renderTodayChecklist() {
-
-const container =
-    document.getElementById(
-        "checklistContainer"
-    );
-
-
-if (!container) {
-    return;
-}
-
-
-if (todayChecklist.length === 0) {
-
-    container.innerHTML = `
-        <div class="empty-state">
-            Belum ada checklist untuk hari ini.
-        </div>
-    `;
-
-    return;
-}
-
-
-container.innerHTML = "";
-
-
-todayChecklist.forEach((item, index) => {
-
-    const completed =
-        item.status === "SELESAI";
-
-
-    const element =
-        document.createElement("div");
-
-
-    element.className =
-        "checklist-item";
-
-
-    element.innerHTML = `
-
-        <div class="checklist-left">
-
-            <input
-                type="checkbox"
-                class="checklist-checkbox"
-                data-id="${item.id_checklist}"
-                ${completed ? "checked" : ""}
-            >
-
-            <div class="checklist-info">
-
-                <div class="checklist-number">
-                    ${index + 1}
-                </div>
-
-                <div class="checklist-job">
-                    ${escapeHtml(item.pekerjaan)}
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="checklist-status ${
-            completed
-                ? "status-selesai"
-                : "status-belum"
-        }">
-
-            ${
-                completed
-                    ? "Selesai"
-                    : "Belum selesai"
-            }
-
-        </div>
-    `;
-
-
-    container.appendChild(element);
-});
-
-
-document
-    .querySelectorAll(".checklist-checkbox")
-    .forEach(checkbox => {
-
-        checkbox.addEventListener(
-            "change",
-            handleChecklistChange
-        );
-    });
-
-
-updateSaveButton();
-
-}
-
-// ======================================================
-// CHECKBOX BERUBAH
-// ======================================================
-
-function handleChecklistChange(event) {
-
-const id =
-    Number(
-        event.target.dataset.id
-    );
-
-
-const item =
-    todayChecklist.find(
-        checklist =>
-            Number(
-                checklist.id_checklist
-            ) === id
-    );
-
-
-if (!item) {
-    return;
-}
-
-
-item.status =
-    event.target.checked
-        ? "SELESAI"
-        : "BELUM_SELESAI";
-
-
-updateChecklistVisual(
-    event.target,
-    item.status
-);
-
-
-updateSummary();
-updateSaveButton();
-
-}
-
-// ======================================================
-// UPDATE STATUS VISUAL
-// ======================================================
-
-function updateChecklistVisual(
-checkbox,
-status
-) {
-
-const itemElement =
-    checkbox.closest(
-        ".checklist-item"
-    );
-
-
-if (!itemElement) {
-    return;
-}
-
-
-const statusElement =
-    itemElement.querySelector(
-        ".checklist-status"
-    );
-
-
-if (!statusElement) {
-    return;
-}
-
-
-if (status === "SELESAI") {
-
-    statusElement.textContent =
-        "Selesai";
-
-    statusElement.classList.remove(
-        "status-belum"
-    );
-
-    statusElement.classList.add(
-        "status-selesai"
-    );
-
-} else {
-
-    statusElement.textContent =
-        "Belum selesai";
-
-    statusElement.classList.remove(
-        "status-selesai"
-    );
-
-    statusElement.classList.add(
-        "status-belum"
-    );
-}
-
-}
-
-// ======================================================
-// SIMPAN CHECKLIST
-// ======================================================
-
-async function saveChecklist() {
-
-if (
-    !todayChecklist.length ||
-    !currentEmployee
-) {
-    return;
-}
-
-
-const button =
-    document.getElementById(
-        "saveChecklistBtn"
-    );
-
-
-if (button) {
-
-    button.disabled = true;
-    button.textContent = "Menyimpan...";
-}
-
-
-try {
-
-    for (
-        const item of todayChecklist
-    ) {
-
-        const {
-            error
-        } = await db
-            .from("checklist_harian")
-            .update({
-                status: item.status,
-                updated_at:
-                    new Date().toISOString()
-            })
-            .eq(
-                "id_checklist",
-                item.id_checklist
-            )
-            .eq(
-                "id_karyawan",
-                currentEmployee.id_karyawan
-            );
-
-
-        if (error) {
-            throw error;
-        }
-    }
-
-
-    showMessage(
-        "Checklist berhasil disimpan.",
-        "success"
-    );
-
-
-    await loadTodayChecklist();
-    await loadChecklistHistory();
-
-
-} catch (error) {
-
-    console.error(
-        "Save checklist error:",
-        error
-    );
-
-
-    showMessage(
-        error?.message ||
-        "Checklist gagal disimpan.",
-        "error"
-    );
-
-
-} finally {
-
-    if (button) {
-
-        button.disabled = false;
-        button.textContent =
-            "Simpan Checklist";
-    }
-}
-
-}
-
-// ======================================================
-// UPDATE RINGKASAN
-// ======================================================
-
-function updateSummary() {
-
-const total =
-    todayChecklist.length;
-
-
-const completed =
-    todayChecklist.filter(
-        item =>
-            item.status === "SELESAI"
-    ).length;
-
-
-const pending =
-    total - completed;
-
-
-const progress =
-    total > 0
-        ? Math.round(
-            (completed / total) * 100
-        )
-        : 0;
-
-
-setText(
-    "totalChecklist",
-    total
-);
-
-
-setText(
-    "completedChecklist",
-    completed
-);
-
-
-setText(
-    "pendingChecklist",
-    pending
-);
-
-
-setText(
-    "checklistProgress",
-    `${progress}%`
-);
-
-}
-
-// ======================================================
-// UPDATE TOMBOL SIMPAN
-// ======================================================
-
-function updateSaveButton() {
-
-const button =
-    document.getElementById(
-        "saveChecklistBtn"
-    );
-
-
-if (!button) {
-    return;
-}
-
-
-button.disabled =
-    todayChecklist.length === 0;
-
-}
-
-// ======================================================
-// LOAD RIWAYAT
-// ======================================================
-
-async function loadChecklistHistory() {
-
-if (!currentEmployee) {
-    return;
-}
-
-
-const filter =
-    document.getElementById(
-        "checklistDateFilter"
-    );
-
-
-const selectedDate =
-    filter?.value || "";
-
-
-let query =
-    db
-        .from("checklist_harian")
-        .select("*")
-        .eq(
-            "id_karyawan",
-            currentEmployee.id_karyawan
-        )
-        .order(
-            "tanggal",
-            {
-                ascending: false
-            }
-        )
-        .order(
-            "id_checklist",
-            {
-                ascending: true
-            }
-        );
-
-
-if (selectedDate) {
-
-    query =
-        query.eq(
-            "tanggal",
-            selectedDate
-        );
-}
-
-
-const {
-    data,
-    error
-} = await query;
-
-
-if (error) {
-    throw error;
-}
-
-
-renderHistory(
-    data || []
-);
-
-}
-
-// ======================================================
-// TAMPILKAN RIWAYAT
-// ======================================================
-
-function renderHistory(data) {
-
-const tbody =
-    document.getElementById(
-        "checklistTableBody"
-    );
-
-
-const count =
-    document.getElementById(
-        "checklistCount"
-    );
-
-
-if (!tbody) {
-    return;
-}
-
-
-if (data.length === 0) {
-
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="4">
-                Belum ada riwayat checklist.
-            </td>
-        </tr>
-    `;
-
-
-    if (count) {
-        count.textContent =
-            "0 catatan";
-    }
-
-    return;
-}
-
-
-tbody.innerHTML =
-    data.map(item => {
+    list.innerHTML = "";
+
+    for (let i = 0; i < checklistData.length; i++) {
+        const item =
+            checklistData[i];
 
         const completed =
-            item.status === "SELESAI";
+            item.daily &&
+            String(item.daily.status).toUpperCase() === "SELESAI";
 
+        const element =
+            document.createElement("div");
 
-        return `
-            <tr>
+        element.className =
+            completed
+                ? "checklist-item completed"
+                : "checklist-item";
 
-                <td>
-                    ${formatDate(item.tanggal)}
-                </td>
+        element.dataset.templateId =
+            item.id_template;
 
-                <td>
-                    ${escapeHtml(item.pekerjaan)}
-                </td>
+        element.dataset.checklistId =
+            item.daily
+                ? item.daily.id_checklist
+                : "";
 
-                <td>
+        let badge = "";
 
-                    <span class="${
-                        completed
-                            ? "status-selesai"
-                            : "status-belum"
-                    }">
+        if (isRequired(item)) {
+            badge =
+                "<span class=\"required-badge\">Wajib</span>";
+        }
 
-                        ${
-                            completed
-                                ? "Selesai"
-                                : "Belum selesai"
-                        }
+        const check =
+            completed
+                ? "✓"
+                : "";
 
-                    </span>
+        const description =
+            isRequired(item)
+                ? "Tugas wajib diselesaikan"
+                : "Tugas tambahan";
 
-                </td>
+        element.innerHTML =
+            "<div class=\"checklist-checkbox\">" +
+                check +
+            "</div>" +
 
-                <td>
-                    ${escapeHtml(
-                        item.keterangan || "-"
-                    )}
-                </td>
+            "<div class=\"checklist-content\">" +
+                "<div class=\"checklist-title\">" +
+                    escapeHtml(item.pekerjaan) +
+                "</div>" +
 
-            </tr>
-        `;
+                "<div class=\"checklist-description\">" +
+                    description +
+                "</div>" +
+            "</div>" +
 
-    }).join("");
+            badge;
 
+        element.addEventListener(
+            "click",
+            function () {
+                toggleChecklist(element);
+            }
+        );
 
-if (count) {
+        list.appendChild(element);
+    }
 
-    count.textContent =
-        `${data.length} catatan`;
+    updateTaskCount();
+    updateProgress();
+    updateSaveButton();
 }
 
-}
 
-// ======================================================
-// FILTER TANGGAL
-// ======================================================
+/* =========================================================
+   TOGGLE
+   ========================================================= */
 
-function setupDateFilter() {
+function toggleChecklist(element) {
+    if (isSaving) {
+        return;
+    }
 
-const filter =
-    document.getElementById(
-        "checklistDateFilter"
-    );
+    const checkbox =
+        element.querySelector(
+            ".checklist-checkbox"
+        );
 
+    const completed =
+        element.classList.contains(
+            "completed"
+        );
 
-if (!filter) {
-    return;
-}
+    if (completed) {
+        element.classList.remove(
+            "completed"
+        );
 
+        if (checkbox) {
+            checkbox.textContent = "";
+        }
 
-filter.addEventListener(
-    "change",
-    async () => {
+    } else {
+        element.classList.add(
+            "completed"
+        );
 
-        try {
-
-            await loadChecklistHistory();
-
-        } catch (error) {
-
-            console.error(
-                "Filter history error:",
-                error
-            );
-
-
-            showMessage(
-                error?.message ||
-                "Gagal memuat riwayat.",
-                "error"
-            );
+        if (checkbox) {
+            checkbox.textContent = "✓";
         }
     }
-);
 
-}
-
-// ======================================================
-// BUTTON
-// ======================================================
-
-function setupButtons() {
-
-const refreshButton =
-    document.getElementById(
-        "refreshChecklistBtn"
-    );
-
-
-if (refreshButton) {
-
-    refreshButton.addEventListener(
-        "click",
-        async () => {
-
-            try {
-
-                showMessage(
-                    "Memuat ulang...",
-                    "info"
-                );
-
-                await loadTodayChecklist();
-                await loadChecklistHistory();
-
-                hideMessage();
-
-            } catch (error) {
-
-                console.error(
-                    "Refresh error:",
-                    error
-                );
-
-
-                showMessage(
-                    error?.message ||
-                    "Gagal memuat checklist.",
-                    "error"
-                );
-            }
-        }
-    );
+    updateProgress();
+    updateSaveButton();
 }
 
 
-const saveButton =
-    document.getElementById(
-        "saveChecklistBtn"
-    );
+/* =========================================================
+   SAVE
+   ========================================================= */
 
-
-if (saveButton) {
-
-    saveButton.addEventListener(
-        "click",
-        saveChecklist
-    );
-}
-
-
-const clearButton =
-    document.getElementById(
-        "clearChecklistFilter"
-    );
-
-
-if (clearButton) {
-
-    clearButton.addEventListener(
-        "click",
-        async () => {
-
-            const filter =
-                document.getElementById(
-                    "checklistDateFilter"
-                );
-
-
-            if (filter) {
-                filter.value = "";
-            }
-
-
-            try {
-
-                await loadChecklistHistory();
-
-            } catch (error) {
-
-                console.error(
-                    "Clear filter error:",
-                    error
-                );
-            }
-        }
-    );
-}
-
-
-const logoutButton =
-    document.querySelector(
-        ".logout-btn"
-    );
-
-
-if (logoutButton) {
-
-    logoutButton.addEventListener(
-        "click",
-        logout
-    );
-}
-
-}
-
-// ======================================================
-// LOGOUT
-// ======================================================
-
-async function logout() {
-
-try {
-
-    await db.auth.signOut();
-
-    sessionStorage.clear();
-
-    window.location.href =
-        "../index.html";
-
-} catch (error) {
-
-    console.error(
-        "Logout error:",
-        error
-    );
-
-
-    showMessage(
-        "Gagal logout.",
-        "error"
-    );
-}
-
-}
-
-// ======================================================
-// LOCAL DATE
-// ======================================================
-
-function getLocalDate() {
-
-const now =
-    new Date();
-
-
-const year =
-    now.getFullYear();
-
-
-const month =
-    String(
-        now.getMonth() + 1
-    ).padStart(
-        2,
-        "0"
-    );
-
-
-const day =
-    String(
-        now.getDate()
-    ).padStart(
-        2,
-        "0"
-    );
-
-
-return `${year}-${month}-${day}`;
-
-}
-
-// ======================================================
-// FORMAT DATE
-// ======================================================
-
-function formatDate(dateString) {
-
-if (!dateString) {
-    return "-";
-}
-
-
-const date =
-    new Date(
-        `${dateString}T00:00:00`
-    );
-
-
-return date.toLocaleDateString(
-    "id-ID",
-    {
-        day: "2-digit",
-        month: "long",
-        year: "numeric"
+async function saveChecklist() {
+    if (isSaving) {
+        return;
     }
-);
 
+    const list =
+        document.getElementById(
+            "checklistList"
+        );
+
+    if (!list) {
+        return;
+    }
+
+    const items =
+        list.querySelectorAll(
+            ".checklist-item"
+        );
+
+    if (items.length === 0) {
+        showToast(
+            "Tidak ada checklist.",
+            "warning"
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       CEK TUGAS WAJIB
+       ===================================================== */
+
+    let incompleteRequired = 0;
+
+    for (let i = 0; i < checklistData.length; i++) {
+        const item =
+            checklistData[i];
+
+        if (!isRequired(item)) {
+            continue;
+        }
+
+        const element =
+            list.querySelector(
+                "[data-template-id=\"" +
+                item.id_template +
+                "\"]"
+            );
+
+        if (
+            !element ||
+            !element.classList.contains("completed")
+        ) {
+            incompleteRequired++;
+        }
+    }
+
+    if (incompleteRequired > 0) {
+        showToast(
+            "Masih ada " +
+            incompleteRequired +
+            " tugas wajib yang belum selesai.",
+            "warning"
+        );
+
+        return;
+    }
+
+
+    isSaving = true;
+
+    const button =
+        document.getElementById(
+            "saveChecklistBtn"
+        );
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Menyimpan...";
+    }
+
+
+    try {
+        for (let i = 0; i < checklistData.length; i++) {
+            const item =
+                checklistData[i];
+
+            if (!item.daily) {
+                console.warn(
+                    "Tidak ada row harian:",
+                    item
+                );
+
+                continue;
+            }
+
+            const element =
+                list.querySelector(
+                    "[data-template-id=\"" +
+                    item.id_template +
+                    "\"]"
+                );
+
+            const completed =
+                element &&
+                element.classList.contains(
+                    "completed"
+                );
+
+            const newStatus =
+                completed
+                    ? "SELESAI"
+                    : "BELUM_SELESAI";
+
+            const updateResult =
+                await db
+                    .from("checklist_harian")
+                    .update({
+                        status: newStatus,
+                        updated_at:
+                            new Date().toISOString()
+                    })
+                    .eq(
+                        "id_checklist",
+                        item.daily.id_checklist
+                    );
+
+            if (updateResult.error) {
+                console.error(
+                    "Update Checklist Error:",
+                    updateResult.error
+                );
+
+                throw updateResult.error;
+            }
+        }
+
+        showToast(
+            "Checklist berhasil disimpan.",
+            "success"
+        );
+
+        await loadChecklist();
+
+    } catch (error) {
+        console.error(
+            "saveChecklist Error:",
+            error
+        );
+
+        showToast(
+            "Gagal menyimpan checklist: " +
+            (
+                error.message ||
+                "Terjadi kesalahan."
+            ),
+            "error"
+        );
+
+    } finally {
+        isSaving = false;
+
+        if (button) {
+            button.textContent =
+                "Simpan Checklist";
+
+            updateSaveButton();
+        }
+    }
 }
 
-// ======================================================
-// SET TEXT
-// ======================================================
 
-function setText(id, value) {
+/* =========================================================
+   PROGRESS
+   ========================================================= */
 
-const element =
-    document.getElementById(id);
+function updateProgress() {
+    const elements =
+        document.querySelectorAll(
+            ".checklist-item"
+        );
 
+    const total =
+        elements.length;
 
-if (element) {
-    element.textContent = value;
+    const completed =
+        document.querySelectorAll(
+            ".checklist-item.completed"
+        ).length;
+
+    let percentage = 0;
+
+    if (total > 0) {
+        percentage =
+            Math.round(
+                (completed / total) * 100
+            );
+    }
+
+    setText(
+        "completedCount",
+        completed
+    );
+
+    setText(
+        "totalCount",
+        total
+    );
+
+    setText(
+        "progressPercent",
+        percentage + "%"
+    );
+
+    const fill =
+        document.getElementById(
+            "progressFill"
+        );
+
+    if (fill) {
+        fill.style.width =
+            percentage + "%";
+    }
+
+    const message =
+        document.getElementById(
+            "progressMessage"
+        );
+
+    if (!message) {
+        return;
+    }
+
+    if (total === 0) {
+        message.textContent =
+            "Belum ada tugas checklist.";
+
+    } else if (percentage === 100) {
+        message.textContent =
+            "Semua tugas sudah selesai. Mantap!";
+
+    } else if (percentage > 0) {
+        message.textContent =
+            "Sebagian tugas sudah selesai. Lanjutkan sampai selesai.";
+
+    } else {
+        message.textContent =
+            "Silakan kerjakan checklist sesuai tugas hari ini.";
+    }
 }
 
+
+/* =========================================================
+   TASK COUNT
+   ========================================================= */
+
+function updateTaskCount() {
+    const count =
+        document.querySelectorAll(
+            ".checklist-item"
+        ).length;
+
+    setText(
+        "taskCount",
+        count + " tugas"
+    );
 }
 
-// ======================================================
-// ESCAPE HTML
-// ======================================================
+
+/* =========================================================
+   SAVE BUTTON
+   ========================================================= */
+
+function updateSaveButton() {
+    const button =
+        document.getElementById(
+            "saveChecklistBtn"
+        );
+
+    if (!button) {
+        return;
+    }
+
+    if (isSaving) {
+        button.disabled = true;
+        return;
+    }
+
+    const items =
+        document.querySelectorAll(
+            ".checklist-item"
+        );
+
+    button.disabled =
+        items.length === 0;
+}
+
+
+/* =========================================================
+   REQUIRED
+   ========================================================= */
+
+function isRequired(item) {
+    return (
+        item.wajib === true ||
+        item.wajib === "true" ||
+        item.wajib === "TRUE" ||
+        item.wajib === 1 ||
+        item.wajib === "1"
+    );
+}
+
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+function updateAvatar(name) {
+    const avatar =
+        document.getElementById(
+            "employeeAvatar"
+        );
+
+    if (!avatar || !name) {
+        return;
+    }
+
+    avatar.textContent =
+        String(name)
+            .trim()
+            .charAt(0)
+            .toUpperCase();
+}
+
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+
+function setupEvents() {
+    const button =
+        document.getElementById(
+            "saveChecklistBtn"
+        );
+
+    if (button) {
+        button.addEventListener(
+            "click",
+            saveChecklist
+        );
+    }
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function showToast(
+    message,
+    type
+) {
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    if (!toast) {
+        return;
+    }
+
+    if (!type) {
+        type = "info";
+    }
+
+    toast.textContent =
+        message;
+
+    toast.className =
+        "toast " + type;
+
+    toast.classList.add(
+        "show"
+    );
+
+    setTimeout(function () {
+        toast.classList.remove(
+            "show"
+        );
+    }, 3000);
+}
+
+
+/* =========================================================
+   SET TEXT
+   ========================================================= */
+
+function setText(
+    id,
+    value
+) {
+    const element =
+        document.getElementById(id);
+
+    if (element) {
+        element.textContent =
+            value;
+    }
+}
+
+
+/* =========================================================
+   DATE
+   ========================================================= */
+
+function getTodayDate() {
+    const now =
+        new Date();
+
+    const year =
+        now.getFullYear();
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+    const day =
+        String(
+            now.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
+
+    return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+    );
+}
+
+
+function updateDate() {
+    const element =
+        document.getElementById(
+            "tanggalHariIni"
+        );
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        new Date().toLocaleDateString(
+            "id-ID",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        );
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
 
 function escapeHtml(value) {
+    let text =
+        String(value == null ? "" : value);
 
-if (
-    value === null ||
-    value === undefined
-) {
-    return "";
-}
+    text =
+        text.replace(
+            /&/g,
+            "&amp;"
+        );
 
+    text =
+        text.replace(
+            /</g,
+            "&lt;"
+        );
 
-return String(value)
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+    text =
+        text.replace(
+            />/g,
+            "&gt;"
+        );
 
-}
+    text =
+        text.replace(
+            /"/g,
+            "&quot;"
+        );
 
-// ======================================================
-// MESSAGE
-// ======================================================
-
-function showMessage(
-message,
-type = "info"
-) {
-
-const element =
-    document.getElementById(
-        "checklistMessage"
-    );
-
-
-if (!element) {
-    return;
-}
-
-
-element.textContent =
-    message;
-
-
-element.className =
-    `message-box ${type}`;
-
-
-element.style.display =
-    "block";
-
-}
-
-// ======================================================
-// HIDE MESSAGE
-// ======================================================
-
-function hideMessage() {
-
-const element =
-    document.getElementById(
-        "checklistMessage"
-    );
-
-
-if (element) {
-    element.style.display =
-        "none";
-}
-
+    return text;
 }

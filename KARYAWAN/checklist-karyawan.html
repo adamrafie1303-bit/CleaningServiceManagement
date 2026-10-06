@@ -1,438 +1,283 @@
 <!DOCTYPE html>
-
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Checklist Karyawan | Cleaning Service Management</title>
-  <link rel="stylesheet" href="checklist-karyawan.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Checklist | Cleaning Service Management</title>
+
+    <link rel="stylesheet" href="checklist-karyawan.css">
 </head>
 
 <body>
 
-  <div class="app-layout">
+    <!-- ================= HEADER ================= -->
+    <header class="topbar">
 
-```
-<aside class="sidebar">
+        <div class="brand">
+            <img
+                src="../ASSETS/logo-ardend.png"
+                alt="Logo PT. Ardend Adhikara Pandita"
+            >
 
-  <div class="sidebar-brand">
-    <img
-      src="../ASSETS/logo-ardend.png"
-      alt="Logo PT. Ardend Adhikara Pandita"
-    >
+            <div class="brand-text">
+                <strong>PT. Ardend Adhikara Pandita</strong>
+                <span>Cleaning Service Management</span>
+            </div>
+        </div>
 
-    <div>
-      <strong>Cleaning Service</strong>
-      <small>Management</small>
-    </div>
-  </div>
+        <div class="employee-info">
+            <div class="employee-avatar" id="employeeAvatar">
+                K
+            </div>
 
-  <nav class="sidebar-menu" aria-label="Navigasi karyawan">
+            <div class="employee-text">
+                <strong id="topNama">Karyawan</strong>
+                <span id="topId">-</span>
+            </div>
+        </div>
 
-    <a href="dashboard-karyawan.html">
-      Dashboard
-    </a>
+    </header>
 
-    <a href="absensi-karyawan.html">
-      Absensi
-    </a>
 
-    <a href="checklist-karyawan.html" class="active">
-      Checklist
-    </a>
+    <!-- ================= MAIN ================= -->
+    <main class="checklist-page">
 
-    <a href="laporan-karyawan.html">
-      Laporan
-    </a>
+        <!-- PAGE HEADER -->
+        <section class="page-header">
 
-    <a href="profil-karyawan.html">
-      Profil
-    </a>
+            <div>
+                <span class="page-label">CHECKLIST HARIAN</span>
 
-  </nav>
+                <h1>Checklist Pekerjaan</h1>
 
-  <div class="sidebar-footer">
-    <small>PT. Ardend Adhikara Pandita</small>
-  </div>
+                <p id="tanggalHariIni">
+                    Memuat tanggal...
+                </p>
+            </div>
 
-</aside>
+            <div class="employee-badge">
+                <span>ID Karyawan</span>
+                <strong id="employeeId">-</strong>
+            </div>
 
-<main class="main-content">
+        </section>
 
-  <header class="topbar">
 
-    <div class="page-heading">
+        <!-- ================= SITE INFO ================= -->
+        <section class="site-card">
 
-      <h1>Checklist Pekerjaan</h1>
+            <div class="site-icon">
+                🏢
+            </div>
 
-      <p>
-        Periksa dan lengkapi pekerjaan cleaning service Anda.
-      </p>
+            <div class="site-content">
 
-    </div>
+                <span class="card-label">
+                    SITE PENUGASAN
+                </span>
 
-    <div class="topbar-profile">
+                <h2 id="siteName">
+                    Memuat site...
+                </h2>
 
-      <div class="profile-text">
+                <p id="siteAddress">
+                    Memuat alamat...
+                </p>
 
-        <strong data-employee-id>
-          Memuat...
-        </strong>
+            </div>
 
-        <small data-employee-name>
-          Karyawan
-        </small>
+            <div class="site-status" id="siteStatus">
+                AKTIF
+            </div>
 
-    </div>
+        </section>
 
-  </header>
 
-  <section class="page-content">
+        <!-- ================= PROGRESS ================= -->
+        <section class="progress-card">
 
+            <div class="progress-top">
+
+                <div>
+                    <span class="card-label">
+                        PROGRESS PEKERJAAN
+                    </span>
+
+                    <h2>
+                        <span id="completedCount">0</span>
+                        /
+                        <span id="totalCount">0</span>
+                        Tugas Selesai
+                    </h2>
+                </div>
+
+                <div class="progress-percent" id="progressPercent">
+                    0%
+                </div>
+
+            </div>
+
+            <div class="progress-bar">
+                <div
+                    class="progress-fill"
+                    id="progressFill"
+                    style="width: 0%;"
+                ></div>
+            </div>
+
+            <p id="progressMessage">
+                Silakan kerjakan checklist sesuai tugas hari ini.
+            </p>
+
+        </section>
+
+
+        <!-- ================= CHECKLIST ================= -->
+        <section class="checklist-card">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="card-label">
+                        DAFTAR TUGAS
+                    </span>
+
+                    <h2>
+                        Pekerjaan Hari Ini
+                    </h2>
+                </div>
+
+                <span
+                    class="task-count"
+                    id="taskCount"
+                >
+                    0 tugas
+                </span>
+
+            </div>
+
+
+            <div
+                class="checklist-list"
+                id="checklistList"
+            >
+
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+
+                    <p>
+                        Memuat checklist...
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= SUBMIT ================= -->
+        <section class="submit-card">
+
+            <div class="submit-info">
+
+                <div class="submit-icon">
+                    ✓
+                </div>
+
+                <div>
+                    <h3>
+                        Checklist Hari Ini
+                    </h3>
+
+                    <p id="submitMessage">
+                        Pastikan semua tugas wajib sudah selesai.
+                    </p>
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                id="saveChecklistBtn"
+                class="primary-button"
+                disabled
+            >
+                Simpan Checklist
+            </button>
+
+        </section>
+
+
+        <!-- ================= INFORMATION ================= -->
+        <section class="info-card">
+
+            <div class="info-icon">
+                ℹ
+            </div>
+
+            <div>
+                <strong>
+                    Catatan
+                </strong>
+
+                <p>
+                    Checklist digunakan untuk mencatat pekerjaan
+                    yang telah diselesaikan pada site hari ini.
+                    Pastikan data yang dicentang sudah sesuai
+                    dengan pekerjaan yang benar-benar dilakukan.
+                </p>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= MOBILE NAV ================= -->
+    <nav class="mobile-nav">
+
+        <a
+            href="absensi-karyawan.html"
+            class="mobile-nav-item"
+        >
+            <span class="nav-icon">📍</span>
+            <span>Absensi</span>
+        </a>
+
+        <a
+            href="checklist-karyawan.html"
+            class="mobile-nav-item active"
+        >
+            <span class="nav-icon">✓</span>
+            <span>Checklist</span>
+        </a>
+
+        <a
+            href="laporan-karyawan.html"
+            class="mobile-nav-item"
+        >
+            <span class="nav-icon">📄</span>
+            <span>Laporan</span>
+        </a>
+
+    </nav>
+
+
+    <!-- ================= TOAST ================= -->
     <div
-      id="checklistMessage"
-      class="message-box"
-      role="status"
-      aria-live="polite"
+        id="toast"
+        class="toast"
     ></div>
 
-    <section class="welcome-panel">
 
-      <div>
+    <!-- ================= SCRIPTS ================= -->
 
-        <p>Checklist hari ini</p>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        <h2 id="todayDate">
-          Memuat tanggal...
-        </h2>
+    <script src="../supabase-config.js"></script>
 
-        <p id="checklistSite">
-          Site: Memuat...
-        </p>
-
-      </div>
-
-      <button
-        type="button"
-        id="refreshChecklistBtn"
-      >
-        Muat Ulang
-      </button>
-
-    </section>
-
-    <section
-      class="summary-grid"
-      aria-label="Ringkasan checklist"
-    >
-
-      <article class="summary-card">
-        <span>Total Checklist</span>
-        <strong id="totalChecklist">0</strong>
-      </article>
-
-      <article class="summary-card">
-        <span>Selesai</span>
-        <strong id="completedChecklist">0</strong>
-      </article>
-
-      <article class="summary-card">
-        <span>Belum Selesai</span>
-        <strong id="pendingChecklist">0</strong>
-      </article>
-
-      <article class="summary-card">
-        <span>Progress</span>
-        <strong id="checklistProgress">0%</strong>
-      </article>
-
-    </section>
-
-    <section class="data-card">
-
-      <div class="section-heading">
-
-        <div>
-
-          <h2>Checklist Hari Ini</h2>
-
-          <p>
-            Daftar pekerjaan yang harus diselesaikan.
-          </p>
-
-        </div>
-
-      </div>
-
-      <div
-        id="checklistContainer"
-        class="checklist-container"
-      >
-
-        <div class="loading-state">
-          Memuat checklist...
-        </div>
-
-      </div>
-
-      <div class="checklist-footer">
-
-        <button
-          type="button"
-          id="saveChecklistBtn"
-          disabled
-        >
-          Simpan Checklist
-        </button>
-
-      </div>
-
-    </section>
-
-    <section class="data-card">
-
-      <div class="section-heading">
-
-        <div>
-
-          <h2>Riwayat Checklist</h2>
-
-          <p>
-            Daftar checklist yang sudah tercatat.
-          </p>
-
-        </div>
-
-      </div>
-
-      <div class="filter-controls">
-
-        <label for="checklistDateFilter">
-          Tanggal
-        </label>
-
-        <input
-          type="date"
-          id="checklistDateFilter"
-        >
-
-        <button
-          type="button"
-          id="clearChecklistFilter"
-        >
-          Semua Tanggal
-        </button>
-
-      </div>
-
-      <div class="table-wrapper">
-
-        <table>
-
-          <thead>
-            <tr>
-              <th>Tanggal</th>
-              <th>Pekerjaan</th>
-              <th>Status</th>
-              <th>Keterangan</th>
-            </tr>
-          </thead>
-
-          <tbody id="checklistTableBody">
-
-            <tr>
-              <td colspan="4">
-                Memuat riwayat checklist...
-              </td>
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-      <p id="checklistCount">
-        0 catatan
-      </p>
-
-    </section>
-
-  </section>
-
-</main>
-```
-
-  </div>
-
-  <nav
-    class="mobile-bottom-nav"
-    aria-label="Navigasi karyawan"
-  >
-
-```
-<a href="dashboard-karyawan.html">
-  Dashboard
-</a>
-
-<a href="absensi-karyawan.html">
-  Absensi
-</a>
-
-<a
-  href="checklist-karyawan.html"
-  class="active"
->
-  Checklist
-</a>
-
-<a href="laporan-karyawan.html">
-  Laporan
-</a>
-
-<a href="profil-karyawan.html">
-  Profil
-</a>
-```
-
-  </nav>
-
-  <!-- SUPABASE -->
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- CONFIG -->
-
-  <script src="../supabase-config.js"></script>
-
-  <!-- TES BROWSER -->
-
-  <script>
-    console.log("=================================");
-    console.log("CHECKLIST HTML BERHASIL DIMUAT");
-    console.log("SUPABASE GLOBAL:", typeof window.supabase);
-    console.log("SUPABASE CLIENT:", typeof window.supabaseClient);
-    console.log("=================================");
-  </script>
-
-  <!-- CHECKLIST JS -->
-
-  <script src="checklist-karyawan.js"></script>
+    <script src="checklist-karyawan.js"></script>
 
 </body>
 </html>
-
-/* =========================================================
-   MOBILE BOTTOM NAV
-   ========================================================= */
-
-.mobile-bottom-nav {
-    display: none;
-}
-
-@media (max-width: 767px) {
-
-    .mobile-bottom-nav {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-
-        width: 100%;
-        height: 68px;
-
-        display: flex;
-        align-items: stretch;
-        justify-content: space-around;
-
-        background: rgba(255, 255, 255, 0.97);
-
-        border-top: 1px solid #e5edf5;
-
-        box-shadow:
-            0 -4px 18px rgba(9, 40, 68, 0.08);
-
-        z-index: 9999;
-
-        padding:
-            6px
-            6px
-            calc(6px + env(safe-area-inset-bottom));
-
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
-
-    .mobile-bottom-nav a {
-        flex: 1;
-        min-width: 0;
-
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-
-        gap: 3px;
-
-        text-decoration: none;
-
-        color: #7b8b9b;
-
-        font-size: 10px;
-        font-weight: 600;
-
-        line-height: 1.2;
-
-        border-radius: 10px;
-
-        transition:
-            color 0.2s ease,
-            background 0.2s ease;
-    }
-
-    .mobile-bottom-nav a .nav-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        width: 25px;
-        height: 25px;
-
-        font-size: 18px;
-        line-height: 1;
-
-        font-weight: 700;
-    }
-
-    .mobile-bottom-nav a span:last-child {
-        white-space: nowrap;
-    }
-
-    .mobile-bottom-nav a:hover {
-        color: #087df5;
-    }
-
-    .mobile-bottom-nav a.active {
-        color: #087df5;
-    }
-
-    .mobile-bottom-nav a.active .nav-icon {
-        background: #eaf4ff;
-
-        border-radius: 8px;
-
-        width: 32px;
-        height: 28px;
-    }
-
-    /* Biar isi halaman tidak ketutup bottom nav */
-    .main-content {
-        padding-bottom: 90px !important;
-    }
-
-    /* Sidebar desktop disembunyikan di HP */
-    .sidebar {
-        display: none;
-    }
-
-}

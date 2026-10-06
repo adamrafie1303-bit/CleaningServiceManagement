@@ -3,6 +3,7 @@
    PT. Ardend Adhikara Pandita
    ========================================================= */
 
+
 /* ================= RESET ================= */
 
 * {
@@ -18,565 +19,81 @@ html {
 body {
     font-family: Arial, Helvetica, sans-serif;
     background: #f5f9fd;
-    color: #182b42;
+    color: #092844;
     min-height: 100vh;
-}
-
-
-/* ================= APP LAYOUT ================= */
-
-.app-layout {
-    min-height: 100vh;
-}
-
-
-/* ================= SIDEBAR ================= */
-
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 195px;
-    height: 100vh;
-    background: #092844;
-    color: #ffffff;
-
-    display: flex;
-    flex-direction: column;
-
-    z-index: 1000;
-}
-
-
-/* ================= SIDEBAR BRAND ================= */
-
-.sidebar-brand {
-    height: 88px;
-    padding: 20px 18px;
-
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.sidebar-brand img {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.sidebar-brand > div {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-}
-
-.sidebar-brand strong {
-    font-size: 13px;
-    font-weight: 700;
-    color: #ffffff;
-}
-
-.sidebar-brand small {
-    margin-top: 3px;
-    font-size: 11px;
-    color: #a9bfd3;
-}
-
-
-/* ================= SIDEBAR MENU ================= */
-
-.sidebar-menu {
-    padding: 18px 12px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.sidebar-menu a {
-    min-height: 44px;
-    padding: 0 15px;
-
-    border-radius: 10px;
-
-    display: flex;
-    align-items: center;
-
-    color: #b8cadb;
-    text-decoration: none;
-
-    font-size: 14px;
-    font-weight: 500;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease;
-}
-
-.sidebar-menu a:hover {
-    background: rgba(255, 255, 255, 0.07);
-    color: #ffffff;
-}
-
-.sidebar-menu a.active {
-    background: #087df5;
-    color: #ffffff;
-    font-weight: 600;
-}
-
-
-/* ================= SIDEBAR FOOTER ================= */
-
-.sidebar-footer {
-    margin-top: auto;
-    padding: 18px;
-
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.sidebar-footer small {
-    display: block;
-    color: #7892a9;
-    font-size: 10px;
-    line-height: 1.5;
-}
-
-
-/* ================= MAIN ================= */
-
-.main-content {
-    min-height: 100vh;
-    margin-left: 195px;
+    padding-bottom: 30px;
 }
 
 
 /* ================= TOPBAR ================= */
 
 .topbar {
-    position: sticky;
-    top: 0;
-
-    min-height: 74px;
-    padding: 0 30px;
+    width: 100%;
+    height: 76px;
 
     background: #ffffff;
-    border-bottom: 1px solid #e8eef5;
+
+    border-bottom: 1px solid #e6edf5;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    gap: 20px;
+    padding: 0 34px;
 
+    position: sticky;
+    top: 0;
     z-index: 100;
+
+    box-shadow: 0 2px 12px rgba(9, 40, 68, 0.04);
 }
 
 
-/* ================= PAGE HEADING ================= */
+/* ================= BRAND ================= */
 
-.page-heading {
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.brand-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.25;
+    gap: 2px;
 }
 
-.page-heading h1 {
-    font-size: 17px;
+.brand-text strong {
+    font-size: 14px;
     font-weight: 700;
     color: #092844;
 }
 
-.page-heading p {
-    margin-top: 4px;
+.brand-text span {
     font-size: 11px;
-    color: #718096;
+    color: #7b8da1;
 }
 
 
-/* ================= TOPBAR PROFILE ================= */
+/* ================= EMPLOYEE INFO ================= */
 
-.topbar-profile {
+.employee-info {
     display: flex;
     align-items: center;
-    gap: 12px;
-}
-
-.profile-text {
-    display: flex;
-    flex-direction: column;
-    text-align: right;
-    line-height: 1.3;
-}
-
-.profile-text strong {
-    font-size: 12px;
-    color: #182b42;
-}
-
-.profile-text small {
-    margin-top: 2px;
-    font-size: 10px;
-    color: #718096;
-}
-
-
-/* ================= LOGOUT ================= */
-
-.logout-btn {
-    padding: 8px 13px;
-
-    border: 1px solid #e3eaf1;
-    border-radius: 8px;
-
-    background: #ffffff;
-    color: #718096;
-
-    font-family: inherit;
-    font-size: 10px;
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-}
-
-.logout-btn:hover {
-    border-color: #f05252;
-    color: #f05252;
-    background: #fff6f6;
-}
-
-
-/* ================= PAGE CONTENT ================= */
-
-.page-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 30px;
-}
-
-
-/* ================= MESSAGE ================= */
-
-.message-box {
-    display: none;
-
-    margin-bottom: 18px;
-    padding: 13px 16px;
-
-    border-radius: 10px;
-
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.message-box:not(:empty) {
-    display: block;
-}
-
-.message-box.success {
-    background: #edfbf5;
-    border: 1px solid #ccefe0;
-    color: #168b58;
-}
-
-.message-box.error {
-    background: #fff1f1;
-    border: 1px solid #f4d1d1;
-    color: #c43d3d;
-}
-
-.message-box.warning {
-    background: #fff8e9;
-    border: 1px solid #f7e2ae;
-    color: #a76d00;
-}
-
-.message-box.info {
-    background: #eaf4ff;
-    border: 1px solid #d6eaff;
-    color: #087df5;
-}
-
-
-/* ================= WELCOME PANEL ================= */
-
-.welcome-panel {
-    margin-bottom: 20px;
-    padding: 22px 24px;
-
-    background: linear-gradient(
-        135deg,
-        #eaf4ff 0%,
-        #f7fbff 100%
-    );
-
-    border: 1px solid #dcecff;
-    border-radius: 16px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 20px;
-}
-
-.welcome-panel p:first-child {
-    margin-bottom: 5px;
-
-    color: #087df5;
-
-    font-size: 11px;
-    font-weight: 600;
-
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.welcome-panel h2 {
-    font-size: 22px;
-    color: #092844;
-}
-
-.welcome-panel p:last-child {
-    margin-top: 7px;
-
-    color: #718096;
-    font-size: 12px;
-}
-
-
-/* ================= REFRESH BUTTON ================= */
-
-#refreshChecklistBtn {
-    padding: 10px 15px;
-
-    border: none;
-    border-radius: 9px;
-
-    background: #087df5;
-    color: #ffffff;
-
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 600;
-
-    cursor: pointer;
-    white-space: nowrap;
-
-    transition: 0.2s ease;
-}
-
-#refreshChecklistBtn:hover {
-    background: #066dd7;
-    box-shadow: 0 5px 14px rgba(8, 125, 245, 0.2);
-    transform: translateY(-1px);
-}
-
-
-/* ================= SUMMARY GRID ================= */
-
-.summary-grid {
-    margin-bottom: 20px;
-
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-
-    gap: 14px;
-}
-
-.summary-card {
-    padding: 18px;
-
-    background: #ffffff;
-    border: 1px solid #e8eef5;
-    border-radius: 14px;
-
-    box-shadow: 0 4px 18px rgba(9, 40, 68, 0.04);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
-    min-height: 100px;
-}
-
-.summary-card span {
-    color: #718096;
-
-    font-size: 11px;
-    font-weight: 500;
-}
-
-.summary-card strong {
-    margin-top: 12px;
-
-    color: #092844;
-
-    font-size: 25px;
-    line-height: 1;
-}
-
-.summary-card:nth-child(2) strong {
-    color: #19c77a;
-}
-
-.summary-card:nth-child(3) strong {
-    color: #ffae25;
-}
-
-.summary-card:nth-child(4) strong {
-    color: #087df5;
-}
-
-
-/* ================= DATA CARD ================= */
-
-.data-card {
-    margin-bottom: 20px;
-
-    background: #ffffff;
-    border: 1px solid #e8eef5;
-    border-radius: 16px;
-
-    box-shadow: 0 4px 18px rgba(9, 40, 68, 0.045);
-
-    overflow: hidden;
-}
-
-
-/* ================= SECTION HEADING ================= */
-
-.section-heading {
-    padding: 20px 22px;
-
-    border-bottom: 1px solid #edf2f7;
-}
-
-.section-heading h2 {
-    font-size: 16px;
-    color: #092844;
-}
-
-.section-heading p {
-    margin-top: 5px;
-
-    font-size: 11px;
-    color: #718096;
-}
-
-
-/* =========================================================
-   CHECKLIST CONTAINER
-   ========================================================= */
-
-.checklist-container {
-    padding: 18px 22px;
-}
-
-.loading-state {
-    padding: 30px 15px;
-
-    text-align: center;
-
-    color: #8a9aac;
-    font-size: 12px;
-}
-
-
-/* =========================================================
-   CHECKLIST ITEM
-   ========================================================= */
-
-.checklist-item {
-    width: 100%;
-
-    margin-bottom: 10px;
-    padding: 14px 15px;
-
-    background: #f8fbfe;
-    border: 1px solid #e7eef5;
-    border-radius: 11px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 15px;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.checklist-item:last-child {
-    margin-bottom: 0;
-}
-
-.checklist-item:hover {
-    background: #f4f9fd;
-    border-color: #d9e8f5;
-}
-
-
-/* =========================================================
-   CHECKLIST LEFT
-   ========================================================= */
-
-.checklist-left {
-    min-width: 0;
-    flex: 1;
-
-    display: flex;
-    align-items: center;
-
-    gap: 12px;
-}
-
-
-/* =========================================================
-   CHECKBOX
-   ========================================================= */
-
-.checklist-checkbox {
-    width: 20px;
-    height: 20px;
-
-    flex: 0 0 20px;
-
-    margin: 0;
-
-    accent-color: #087df5;
-
-    cursor: pointer;
-}
-
-
-/* =========================================================
-   CHECKLIST INFO
-   ========================================================= */
-
-.checklist-info {
-    min-width: 0;
-
-    display: flex;
-    align-items: center;
-
     gap: 10px;
 }
 
-.checklist-number {
-    width: 28px;
-    height: 28px;
+.employee-avatar {
+    width: 38px;
+    height: 38px;
 
-    flex: 0 0 28px;
-
-    border-radius: 8px;
+    border-radius: 50%;
 
     background: #eaf4ff;
     color: #087df5;
@@ -585,636 +102,964 @@ body {
     align-items: center;
     justify-content: center;
 
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 700;
 }
 
-.checklist-job {
-    min-width: 0;
+.employee-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: right;
+}
 
-    color: #182b42;
+.employee-text strong {
+    font-size: 13px;
+    color: #092844;
+}
 
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.45;
-
-    overflow-wrap: anywhere;
+.employee-text span {
+    font-size: 11px;
+    color: #8495a8;
 }
 
 
-/* =========================================================
-   CHECKLIST STATUS
-   ========================================================= */
+/* ================= MAIN ================= */
 
-.checklist-status {
-    flex: 0 0 auto;
+.checklist-page {
+    width: calc(100% - 40px);
+    max-width: 1050px;
+
+    margin: 0 auto;
+
+    padding: 30px 0 50px;
+}
+
+
+/* ================= PAGE HEADER ================= */
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 22px;
+}
+
+.page-label {
+    display: block;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 1.2px;
+
+    color: #087df5;
+
+    margin-bottom: 7px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    line-height: 1.2;
+
+    color: #092844;
+
+    margin-bottom: 6px;
+}
+
+.page-header p {
+    font-size: 13px;
+    color: #7b8da1;
+}
+
+.employee-badge {
+    background: #ffffff;
+
+    border: 1px solid #e5edf5;
+
+    border-radius: 10px;
+
+    padding: 11px 15px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    min-width: 130px;
+}
+
+.employee-badge span {
+    font-size: 10px;
+
+    color: #8a9bad;
+
+    text-transform: uppercase;
+
+    letter-spacing: .6px;
+}
+
+.employee-badge strong {
+    font-size: 14px;
+    color: #087df5;
+}
+
+
+/* ================= CARD BASE ================= */
+
+.site-card,
+.progress-card,
+.checklist-card,
+.submit-card,
+.info-card {
+    background: #ffffff;
+
+    border: 1px solid #e5edf5;
+
+    border-radius: 14px;
+
+    box-shadow: 0 4px 18px rgba(9, 40, 68, 0.045);
+}
+
+
+/* ================= SITE CARD ================= */
+
+.site-card {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px 20px;
+
+    margin-bottom: 16px;
+}
+
+.site-icon {
+    width: 46px;
+    height: 46px;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    background: #eaf4ff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 21px;
+}
+
+.site-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-label {
+    display: block;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: .8px;
+
+    color: #8a9bad;
+
+    margin-bottom: 5px;
+}
+
+.site-content h2 {
+    font-size: 16px;
+
+    color: #092844;
+
+    margin-bottom: 4px;
+}
+
+.site-content p {
+    font-size: 12px;
+
+    color: #8495a8;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.site-status {
+    flex-shrink: 0;
 
     padding: 6px 10px;
 
     border-radius: 20px;
 
-    font-size: 9px;
-    font-weight: 600;
+    background: #e8fbf3;
 
-    white-space: nowrap;
-}
+    color: #159c63;
 
-.status-belum {
-    background: #fff5df;
-    color: #c98200;
-}
+    font-size: 10px;
+    font-weight: 700;
 
-.status-selesai {
-    background: #e9faf2;
-    color: #19a96a;
+    letter-spacing: .5px;
 }
 
 
-/* ================= CHECKLIST FOOTER ================= */
+/* ================= PROGRESS ================= */
 
-.checklist-footer {
-    padding: 16px 22px;
+.progress-card {
+    padding: 20px;
 
-    border-top: 1px solid #edf2f7;
+    margin-bottom: 16px;
+}
 
+.progress-top {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 14px;
+}
+
+.progress-top h2 {
+    font-size: 17px;
+
+    color: #092844;
+}
+
+.progress-percent {
+    font-size: 22px;
+
+    font-weight: 700;
+
+    color: #087df5;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 9px;
+
+    background: #edf2f7;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+
+    width: 0%;
+
+    background: #087df5;
+
+    border-radius: 20px;
+
+    transition: width .3s ease;
+}
+
+.progress-card > p {
+    margin-top: 10px;
+
+    font-size: 12px;
+
+    color: #8495a8;
 }
 
 
-/* ================= SAVE BUTTON ================= */
+/* ================= CHECKLIST CARD ================= */
 
-#saveChecklistBtn {
-    min-width: 150px;
+.checklist-card {
+    padding: 20px;
 
-    padding: 11px 17px;
+    margin-bottom: 16px;
+}
 
-    border: none;
-    border-radius: 9px;
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    background: #19c77a;
-    color: #ffffff;
+    margin-bottom: 17px;
+}
 
-    font-family: inherit;
+.section-heading h2 {
+    font-size: 18px;
+    color: #092844;
+}
+
+.task-count {
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    background: #eaf4ff;
+
+    color: #087df5;
+
     font-size: 11px;
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-}
-
-#saveChecklistBtn:hover:not(:disabled) {
-    background: #15b66d;
-    box-shadow: 0 5px 14px rgba(25, 199, 122, 0.2);
-    transform: translateY(-1px);
-}
-
-#saveChecklistBtn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    font-weight: 700;
 }
 
 
-/* ================= FILTER ================= */
+/* ================= CHECKLIST LIST ================= */
 
-.filter-controls {
-    padding: 16px 22px;
+.checklist-list {
+    display: flex;
+    flex-direction: column;
 
-    background: #fbfdff;
-    border-bottom: 1px solid #edf2f7;
+    gap: 9px;
+}
 
+.checklist-item {
     display: flex;
     align-items: center;
 
-    gap: 10px;
-}
+    gap: 13px;
 
-.filter-controls label {
-    color: #718096;
+    padding: 14px 15px;
 
-    font-size: 11px;
-    font-weight: 600;
-}
+    border: 1px solid #e7edf4;
 
-.filter-controls input[type="date"] {
-    padding: 9px 11px;
+    border-radius: 11px;
 
-    border: 1px solid #dfe8f0;
-    border-radius: 8px;
-
-    background: #ffffff;
-    color: #182b42;
-
-    font-family: inherit;
-    font-size: 11px;
-
-    outline: none;
-}
-
-.filter-controls input[type="date"]:focus {
-    border-color: #087df5;
-}
-
-#clearChecklistFilter {
-    padding: 9px 12px;
-
-    border: 1px solid #dfe8f0;
-    border-radius: 8px;
-
-    background: #ffffff;
-    color: #718096;
-
-    font-family: inherit;
-    font-size: 10px;
-    font-weight: 600;
+    background: #fbfdff;
 
     cursor: pointer;
 
-    transition: 0.2s ease;
+    transition:
+        border-color .2s ease,
+        background .2s ease,
+        transform .2s ease;
 }
 
-#clearChecklistFilter:hover {
-    border-color: #087df5;
-    color: #087df5;
-    background: #eaf4ff;
+.checklist-item:hover {
+    border-color: #b9d9f8;
+
+    background: #f8fbff;
+
+    transform: translateY(-1px);
+}
+
+.checklist-item.completed {
+    border-color: #c8eadc;
+
+    background: #f4fcf8;
 }
 
 
-/* ================= TABLE ================= */
+/* ================= CHECKBOX ================= */
 
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;
+.checklist-checkbox {
+    width: 21px;
+    height: 21px;
 
-    padding: 0 22px;
+    flex-shrink: 0;
+
+    border: 2px solid #c7d3df;
+
+    border-radius: 6px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: transparent;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease;
 }
 
-.table-wrapper table {
-    width: 100%;
-    min-width: 650px;
+.checklist-item.completed .checklist-checkbox {
+    background: #19c77a;
 
-    border-collapse: collapse;
+    border-color: #19c77a;
+
+    color: #ffffff;
 }
 
-.table-wrapper th {
-    padding: 12px 13px;
 
-    background: #f7fafd;
-    border-bottom: 1px solid #e8eef5;
+/* ================= TASK CONTENT ================= */
 
-    color: #718096;
+.checklist-content {
+    flex: 1;
+    min-width: 0;
+}
 
-    font-size: 10px;
+.checklist-title {
+    font-size: 13px;
     font-weight: 600;
 
-    text-align: left;
-    white-space: nowrap;
+    color: #092844;
+
+    margin-bottom: 4px;
 }
 
-.table-wrapper td {
-    padding: 13px;
+.checklist-item.completed .checklist-title {
+    color: #5d7184;
+}
 
-    border-bottom: 1px solid #edf2f7;
-
-    color: #182b42;
-
+.checklist-description {
     font-size: 11px;
 
-    vertical-align: middle;
+    color: #8a9bad;
 }
 
-.table-wrapper tbody tr:last-child td {
-    border-bottom: none;
-}
+.required-badge {
+    flex-shrink: 0;
 
-.table-wrapper tbody tr:hover {
-    background: #fbfdff;
-}
+    padding: 4px 7px;
 
+    border-radius: 5px;
 
-/* ================= TABLE STATUS ================= */
+    background: #fff4e1;
 
-.table-wrapper .status-selesai,
-.table-wrapper .status-belum {
-    display: inline-block;
-}
+    color: #d98900;
 
+    font-size: 9px;
 
-/* ================= CHECKLIST COUNT ================= */
+    font-weight: 700;
 
-#checklistCount {
-    padding: 12px 22px 18px;
-
-    color: #8a9aac;
-
-    font-size: 10px;
-
-    text-align: right;
+    text-transform: uppercase;
 }
 
 
-/* ================= MOBILE BOTTOM NAV ================= */
+/* ================= LOADING ================= */
 
-.mobile-bottom-nav {
+.loading-state {
+    min-height: 150px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    color: #8495a8;
+}
+
+.loading-state p {
+    font-size: 12px;
+}
+
+.loading-spinner {
+    width: 28px;
+    height: 28px;
+
+    border: 3px solid #e4edf5;
+    border-top-color: #087df5;
+
+    border-radius: 50%;
+
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ================= EMPTY STATE ================= */
+
+.empty-state {
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: #8495a8;
+}
+
+.empty-state-icon {
+    font-size: 30px;
+
+    margin-bottom: 10px;
+}
+
+.empty-state strong {
+    display: block;
+
+    color: #092844;
+
+    font-size: 14px;
+
+    margin-bottom: 5px;
+}
+
+.empty-state p {
+    font-size: 12px;
+}
+
+
+/* ================= SUBMIT ================= */
+
+.submit-card {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 17px 20px;
+
+    margin-bottom: 16px;
+}
+
+.submit-info {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.submit-icon {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    background: #eaf4ff;
+
+    color: #087df5;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.submit-info h3 {
+    font-size: 13px;
+
+    color: #092844;
+
+    margin-bottom: 3px;
+}
+
+.submit-info p {
+    font-size: 11px;
+
+    color: #8495a8;
+}
+
+
+/* ================= BUTTON ================= */
+
+.primary-button {
+    border: none;
+
+    background: #087df5;
+    color: #ffffff;
+
+    padding: 11px 18px;
+
+    border-radius: 9px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background .2s ease,
+        transform .2s ease,
+        opacity .2s ease;
+}
+
+.primary-button:hover:not(:disabled) {
+    background: #066ed8;
+
+    transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+    background: #b8c9d8;
+
+    cursor: not-allowed;
+
+    opacity: .8;
+}
+
+
+/* ================= INFO ================= */
+
+.info-card {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 15px 17px;
+}
+
+.info-icon {
+    width: 30px;
+    height: 30px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    background: #eaf4ff;
+
+    color: #087df5;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.info-card strong {
+    display: block;
+
+    font-size: 12px;
+
+    color: #092844;
+
+    margin-bottom: 4px;
+}
+
+.info-card p {
+    font-size: 11px;
+
+    line-height: 1.6;
+
+    color: #8495a8;
+}
+
+
+/* ================= MOBILE NAV ================= */
+
+.mobile-nav {
     display: none;
 }
 
 
-/* =========================================================
-   TABLET
-   ========================================================= */
+/* ================= TOAST ================= */
 
-@media (max-width: 1100px) {
+.toast {
+    position: fixed;
 
-    .sidebar {
-        width: 185px;
-    }
+    right: 25px;
+    bottom: 25px;
 
-    .main-content {
-        margin-left: 185px;
-    }
+    max-width: 350px;
 
-    .page-content {
-        padding: 25px;
-    }
+    padding: 12px 16px;
 
-    .topbar {
-        padding: 0 25px;
-    }
+    border-radius: 9px;
 
-    .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    background: #092844;
+    color: #ffffff;
+
+    font-size: 12px;
+
+    box-shadow: 0 8px 25px rgba(9, 40, 68, 0.2);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateY(10px);
+
+    transition:
+        opacity .25s ease,
+        transform .25s ease,
+        visibility .25s ease;
+
+    z-index: 999;
+}
+
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+
+    transform: translateY(0);
+}
+
+.toast.success {
+    background: #159c63;
+}
+
+.toast.error {
+    background: #d94b4b;
+}
+
+.toast.warning {
+    background: #d98900;
+}
+
+.toast.info {
+    background: #087df5;
 }
 
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
+/* ================= TABLET ================= */
 
 @media (max-width: 767px) {
 
     body {
-        padding-bottom: 67px;
+        padding-bottom: 75px;
     }
-
-
-    /* SIDEBAR */
-
-    .sidebar {
-        width: 250px;
-
-        transform: translateX(-100%);
-
-        transition: transform 0.25s ease;
-
-        box-shadow: 8px 0 25px rgba(9, 40, 68, 0.15);
-    }
-
-    .sidebar.active,
-    .sidebar.open,
-    .sidebar.show {
-        transform: translateX(0);
-    }
-
-
-    /* MAIN */
-
-    .main-content {
-        margin-left: 0;
-    }
-
-
-    /* TOPBAR */
 
     .topbar {
-        min-height: 64px;
-        padding: 12px 15px;
+        height: 66px;
+
+        padding: 0 17px;
     }
 
-    .page-heading h1 {
-        font-size: 15px;
+    .brand img {
+        width: 36px;
+        height: 36px;
     }
 
-    .page-heading p {
-        display: none;
+    .brand-text strong {
+        font-size: 12px;
     }
 
-    .topbar-profile {
-        gap: 0;
-    }
-
-    .profile-text {
-        display: none;
-    }
-
-    .logout-btn {
-        display: none;
-    }
-
-
-    /* CONTENT */
-
-    .page-content {
-        padding: 20px 15px 25px;
-    }
-
-
-    /* WELCOME */
-
-    .welcome-panel {
-        padding: 18px;
-
-        flex-direction: column;
-        align-items: stretch;
-
-        gap: 15px;
-    }
-
-    .welcome-panel h2 {
-        font-size: 20px;
-    }
-
-    #refreshChecklistBtn {
-        width: 100%;
-    }
-
-
-    /* SUMMARY */
-
-    .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    .summary-card {
-        min-height: 90px;
-        padding: 15px;
-    }
-
-    .summary-card strong {
-        font-size: 22px;
-    }
-
-
-    /* DATA CARD */
-
-    .data-card {
-        border-radius: 14px;
-        margin-bottom: 16px;
-    }
-
-    .section-heading {
-        padding: 17px 18px;
-    }
-
-    .section-heading h2 {
-        font-size: 15px;
-    }
-
-
-    /* =====================================================
-       CHECKLIST MOBILE
-       ===================================================== */
-
-    .checklist-container {
-        padding: 14px 14px;
-    }
-
-    .checklist-item {
-        padding: 13px 12px;
-
-        align-items: flex-start;
-
-        gap: 10px;
-    }
-
-    .checklist-left {
-        align-items: flex-start;
-        gap: 9px;
-    }
-
-    .checklist-checkbox {
-        width: 20px;
-        height: 20px;
-
-        flex: 0 0 20px;
-
-        margin-top: 3px;
-    }
-
-    .checklist-info {
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    .checklist-number {
-        width: 25px;
-        height: 25px;
-
-        flex: 0 0 25px;
-
-        border-radius: 7px;
-
+    .brand-text span {
         font-size: 9px;
     }
 
-    .checklist-job {
+    .employee-avatar {
+        width: 34px;
+        height: 34px;
+
+        font-size: 12px;
+    }
+
+    .employee-text strong {
         font-size: 11px;
-        line-height: 1.45;
     }
 
-    .checklist-status {
-        align-self: flex-start;
+    .employee-text span {
+        font-size: 9px;
+    }
 
-        padding: 5px 8px;
+    .checklist-page {
+        width: calc(100% - 28px);
 
+        padding: 22px 0 30px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+
+        gap: 12px;
+    }
+
+    .page-header h1 {
+        font-size: 23px;
+    }
+
+    .employee-badge {
+        min-width: 100px;
+
+        padding: 9px 11px;
+    }
+
+    .site-card {
+        padding: 15px;
+
+        gap: 11px;
+    }
+
+    .site-icon {
+        width: 40px;
+        height: 40px;
+
+        font-size: 18px;
+    }
+
+    .site-content h2 {
+        font-size: 14px;
+    }
+
+    .site-content p {
+        font-size: 10px;
+    }
+
+    .site-status {
+        display: none;
+    }
+
+    .progress-card,
+    .checklist-card {
+        padding: 16px;
+    }
+
+    .progress-top h2 {
+        font-size: 15px;
+    }
+
+    .progress-percent {
+        font-size: 19px;
+    }
+
+    .section-heading h2 {
+        font-size: 16px;
+    }
+
+    .checklist-item {
+        padding: 13px;
+
+        gap: 10px;
+    }
+
+    .checklist-title {
+        font-size: 12px;
+    }
+
+    .checklist-description {
+        font-size: 10px;
+    }
+
+    .required-badge {
         font-size: 8px;
+
+        padding: 4px 6px;
     }
 
+    .submit-card {
+        flex-direction: column;
 
-    /* SAVE */
+        align-items: stretch;
 
-    .checklist-footer {
+        padding: 15px;
+    }
+
+    .primary-button {
+        width: 100%;
+    }
+
+    .info-card {
         padding: 14px;
     }
 
-    #saveChecklistBtn {
-        width: 100%;
-        min-width: 0;
-    }
-
-
-    /* FILTER */
-
-    .filter-controls {
-        padding: 14px 18px;
-
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .filter-controls input[type="date"],
-    #clearChecklistFilter {
-        width: 100%;
-    }
-
-
-    /* TABLE */
-
-    .table-wrapper {
-        padding: 0 18px;
-    }
-
-    .table-wrapper table {
-        min-width: 600px;
-    }
-
-    #checklistCount {
-        padding-left: 18px;
-        padding-right: 18px;
-    }
-
-
-    /* BOTTOM NAV */
-
-    .mobile-bottom-nav {
+    .mobile-nav {
         position: fixed;
+
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
 
         left: 0;
         right: 0;
         bottom: 0;
 
-        height: 67px;
-
-        padding: 7px 5px;
+        height: 65px;
 
         background: #ffffff;
 
-        border-top: 1px solid #e8eef5;
+        border-top: 1px solid #e5edf5;
 
-        box-shadow: 0 -4px 18px rgba(9, 40, 68, 0.07);
+        box-shadow: 0 -4px 18px rgba(9, 40, 68, 0.08);
 
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-
-        z-index: 1100;
+        z-index: 200;
     }
 
-    .mobile-bottom-nav a {
-        min-width: 0;
-
+    .mobile-nav-item {
         display: flex;
+
+        flex-direction: column;
+
         align-items: center;
         justify-content: center;
 
-        text-align: center;
+        gap: 3px;
 
-        color: #718096;
         text-decoration: none;
 
+        color: #8a9bad;
+
         font-size: 9px;
-        font-weight: 500;
 
-        border-radius: 8px;
-
-        transition: 0.2s ease;
+        font-weight: 600;
     }
 
-    .mobile-bottom-nav a.active {
-        background: #eaf4ff;
+    .mobile-nav-item .nav-icon {
+        font-size: 17px;
+
+        line-height: 1;
+    }
+
+    .mobile-nav-item.active {
         color: #087df5;
-        font-weight: 600;
+    }
+
+    .mobile-nav-item.active .nav-icon {
+        transform: scale(1.08);
+    }
+
+    .toast {
+        left: 15px;
+        right: 15px;
+
+        bottom: 80px;
+
+        max-width: none;
+
+        text-align: center;
     }
 }
 
 
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
+/* ================= SMALL MOBILE ================= */
 
-@media (max-width: 380px) {
+@media (max-width: 420px) {
 
-    .page-content {
-        padding: 17px 12px 22px;
+    .brand-text {
+        display: none;
     }
 
-    .topbar {
-        padding-left: 12px;
-        padding-right: 12px;
+    .employee-text {
+        display: none;
     }
 
-    .welcome-panel {
-        padding: 16px;
+    .page-header {
+        flex-direction: column;
     }
 
-    .summary-card {
-        padding: 13px;
+    .employee-badge {
+        width: 100%;
     }
 
-    .summary-card span {
-        font-size: 10px;
-    }
-
-    .summary-card strong {
-        font-size: 20px;
+    .site-content p {
+        white-space: normal;
     }
 
     .section-heading {
-        padding: 15px;
+        align-items: flex-start;
+
+        gap: 10px;
     }
 
-
-    /* CHECKLIST EXTRA SMALL */
-
-    .checklist-container {
-        padding: 12px;
+    .task-count {
+        white-space: nowrap;
     }
 
     .checklist-item {
-        padding: 12px 10px;
-        gap: 8px;
+        align-items: flex-start;
     }
 
-    .checklist-left {
-        gap: 7px;
-    }
-
-    .checklist-info {
-        gap: 7px;
-    }
-
-    .checklist-number {
-        width: 23px;
-        height: 23px;
-
-        flex-basis: 23px;
-
-        font-size: 8px;
-    }
-
-    .checklist-job {
-        font-size: 10px;
-    }
-
-    .checklist-status {
-        padding: 4px 7px;
-        font-size: 7px;
-    }
-
-
-    .checklist-footer {
-        padding: 12px;
-    }
-
-    .table-wrapper {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    #checklistCount {
-        padding-left: 15px;
-        padding-right: 15px;
+    .required-badge {
+        margin-top: 2px;
     }
 }
